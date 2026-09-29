@@ -349,12 +349,12 @@
         <form id="form-add-link" onsubmit="handleAddLink(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4">
           <div class="md:col-span-5">
             <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Título / Descrição do Link</label>
-            <input type="text" id="link-title" required placeholder="Ex: Documentação do Tailwind CSS" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm outline-none transition-all">
+            <input type="text" id="link-title" required placeholder="Ex: Meu site favorito" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm outline-none transition-all">
           </div>
 
           <div class="md:col-span-5">
             <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">URL Completa (https://...)</label>
-            <input type="url" id="link-url" required placeholder="https://tailwindcss.com" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm outline-none transition-all">
+            <input type="url" id="link-url" required placeholder="https://exemplo.com" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm outline-none transition-all">
           </div>
 
           <div class="md:col-span-2 flex items-end">
@@ -439,32 +439,16 @@
     let state = {
       currentUser: null,
       users: JSON.parse(localStorage.getItem('lib_users')) || DEFAULT_ADMIN,
-      links: JSON.parse(localStorage.getItem('lib_links')) || [
-        {
-          id: '1',
-          title: 'Documentação Oficial do Tailwind CSS',
-          url: 'https://tailwindcss.com/docs',
-          addedBy: '29032014',
-          timestamp: Date.now() - 86400000
-        },
-        {
-          id: '2',
-          title: 'Repositório de Ícones FontAwesome',
-          url: 'https://fontawesome.com/icons',
-          addedBy: '29032014',
-          timestamp: Date.now() - 43200000
-        }
-      ],
+      links: JSON.parse(localStorage.getItem('lib_links')) || [],
+      hiddenUrls: {}, // Guarda o estado visível/oculto de cada URL
       warnings: JSON.parse(localStorage.getItem('lib_warnings')) || {}
     };
 
-    // Garantir que a conta do Admin padrão sempre exite mesmo após edições
     if (!state.users['29032014']) {
       state.users['29032014'] = DEFAULT_ADMIN['29032014'];
       saveUsers();
     }
 
-    // Padrões de verificação do filtro de segurança da IA
     const BAD_PATTERNS = [
       /porn/i, /xvideo/i, /redtube/i, /adult/i, /hentai/i, /sex/i, /xxx/i,
       /\.exe$/i, /\.bat$/i, /malware/i, /phishing/i, /trojan/i, /virus/i, /cassino/i, /bet/i
@@ -534,7 +518,6 @@
 
       if (!passInput) return;
 
-      // Gerar ID aleatório de 8 dígitos
       const randomId = Math.floor(10000000 + Math.random() * 90000000).toString();
 
       state.users[randomId] = {
@@ -649,6 +632,21 @@
       showToast("Link armazenado com sucesso na biblioteca!");
     }
 
+    function deleteLink(linkId) {
+      if (confirm("Tem certeza de que deseja excluir este link permanentemente?")) {
+        state.links = state.links.filter(l => l.id !== linkId);
+        localStorage.setItem('lib_links', JSON.stringify(state.links));
+        renderLinks();
+        showToast("Link excluído com sucesso!", "error");
+      }
+    }
+
+    // ALTERNAR VISIBILIDADE DA URL (OLHO)
+    function toggleUrlVisibility(linkId) {
+      state.hiddenUrls[linkId] = !state.hiddenUrls[linkId];
+      renderLinks();
+    }
+
     function checkUserWarnings() {
       if (!state.currentUser) return;
       const warningBanner = document.getElementById('security-warning-banner');
@@ -664,7 +662,7 @@
     }
 
     // ----------------------------------------------------
-    // EXIBIÇÃO DOS CARDS E BOTÃO DE COPIAR LINK
+    // EXIBIÇÃO DOS CARDS, COPIAR LINK, BOTÃO DO OLHO E EXCLUIR
     // ----------------------------------------------------
     function copyLinkToClipboard(url) {
       navigator.clipboard.writeText(url).then(() => {
@@ -695,11 +693,14 @@
               <i class="fa-solid fa-link-slash"></i>
             </div>
             <h4 class="text-base font-bold text-slate-300">Nenhum link encontrado</h4>
-            <p class="text-xs text-slate-500 mt-1">Adicione um novo link acima ou refine seus termos de pesquisa.</p>
+            <p class="text-xs text-slate-500 mt-1">A biblioteca está vazia no momento. Adicione um novo link acima!</p>
           </div>
         `;
         return;
       }
+
+      const currentUserId = state.currentUser ? state.currentUser.id : '';
+      const isAdmin = currentUserId === '29032014';
 
       filteredLinks.forEach(link => {
         const card = document.createElement('div');
@@ -708,6 +709,10 @@
         const formattedDate = new Date(link.timestamp).toLocaleDateString('pt-BR', {
           day: '2-digit', month: '2-digit', year: 'numeric'
         });
+
+        const canDelete = isAdmin || (link.addedBy === currentUserId);
+        const isHidden = state.hiddenUrls[link.id];
+        const displayUrl = isHidden ? '••••••••••••••••••••••••••••••••' : escapeHtml(link.url);
 
         card.innerHTML = `
           <div>
@@ -720,21 +725,36 @@
               </span>
             </div>
 
-            <p class="text-xs text-brand-400/90 font-mono break-all line-clamp-1 mb-4 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60">
-              ${escapeHtml(link.url)}
+            <p class="text-xs text-brand-400/90 font-mono break-all line-clamp-1 mb-4 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60 select-all">
+              ${displayUrl}
             </p>
           </div>
 
-          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-3">
-            <span class="text-[10px] text-slate-500 font-medium">
+          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+            <span class="text-[10px] text-slate-500 font-medium shrink-0">
               <i class="fa-regular fa-clock mr-1"></i> ${formattedDate}
             </span>
 
-            <!-- BOTÃO DE COPIAR LINK EXCLUSIVO -->
-            <button onclick="copyLinkToClipboard('${escapeHtml(link.url)}')" class="w-full py-2 bg-brand-600/10 hover:bg-brand-600/30 active:bg-brand-600/40 text-brand-300 hover:text-white border border-brand-500/30 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2 shadow-sm">
-              <i class="fa-regular fa-copy text-xs"></i>
-              <span>Copiar Link</span>
-            </button>
+            <div class="flex items-center gap-1.5 w-full justify-end">
+              <!-- BOTÃO DO OLHO (MOSTRAR / ESCONDER URL) -->
+              <button onclick="toggleUrlVisibility('${link.id}')" title="${isHidden ? 'Mostrar URL' : 'Ocultar URL'}" class="px-2.5 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 rounded-xl text-xs font-semibold transition-all flex items-center justify-center shadow-sm">
+                <i class="fa-solid ${isHidden ? 'fa-eye' : 'fa-eye-slash'} text-xs"></i>
+              </button>
+
+              <!-- BOTÃO DE COPIAR LINK -->
+              <button onclick="copyLinkToClipboard('${escapeHtml(link.url)}')" class="px-3 py-2 bg-brand-600/10 hover:bg-brand-600/30 active:bg-brand-600/40 text-brand-300 hover:text-white border border-brand-500/30 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
+                <i class="fa-regular fa-copy text-xs"></i>
+                <span>Copiar</span>
+              </button>
+
+              <!-- BOTÃO DE EXCLUIR LINK (PERMISSÃO) -->
+              ${canDelete ? `
+                <button onclick="deleteLink('${link.id}')" title="Excluir este link" class="px-3 py-2 bg-red-500/10 hover:bg-red-500/25 active:bg-red-500/40 text-red-400 border border-red-500/30 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
+                  <i class="fa-solid fa-trash-can text-xs"></i>
+                  <span>Excluir</span>
+                </button>
+              ` : ''}
+            </div>
           </div>
         `;
 
