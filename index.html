@@ -1,496 +1,890 @@
+```html
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Central de Links</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- FontAwesome Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Firebase App & Realtime Database SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkVault Guard - Biblioteca de Links Segura & Persistente</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .glass { backdrop-filter: blur(12px); background: rgba(15, 23, 42, 0.8); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col transition-colors duration-300">
 
-  <!-- TOP BAR -->
-  <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-40">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
-          <i class="fa-solid fa-bookmark text-lg"></i>
-        </div>
-        <div>
-          <h1 class="text-xl font-bold tracking-tight text-white">LinkCloud</h1>
-          <p class="text-xs text-slate-400">Biblioteca Central de Links</p>
-        </div>
-      </div>
+    <!-- Toast Notifications Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none"></div>
 
-      <!-- Auth State Header -->
-      <div id="header-user-info" class="hidden flex items-center space-x-4">
-        <div class="text-right">
-          <p class="text-xs text-slate-400">Conectado como</p>
-          <p id="user-display-id" class="text-sm font-semibold text-indigo-400">ID: ----</p>
-        </div>
-        <button id="btn-logout" class="px-3 py-1.5 text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition-colors flex items-center gap-1.5">
-          <i class="fa-solid fa-right-from-bracket"></i> Sair
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- CONTAINER PRINCIPAL -->
-  <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6">
-
-    <!-- ALERT SYSTEM DE AVISO EM TEMPO REAL -->
-    <div id="security-warning-banner" class="hidden mb-6 bg-red-950/80 border border-red-500/50 p-4 rounded-2xl flex items-start gap-4 animate-pulse">
-      <div class="p-2 bg-red-500/20 text-red-400 rounded-xl">
-        <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-      </div>
-      <div class="flex-grow">
-        <h3 class="font-bold text-red-300">Aviso de Segurança e Moderação</h3>
-        <p id="warning-message-text" class="text-sm text-red-200/80 mt-1">Sua conta tentou enviar um link potencialmente nocivo ou em desacordo com as diretrizes da biblioteca. O link foi removido pelo sistema de IA.</p>
-      </div>
-      <button onclick="dismissWarning()" class="text-red-400 hover:text-red-200 text-sm">
-        <i class="fa-solid fa-xmark text-lg"></i>
-      </button>
-    </div>
-
-    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
-    <section id="auth-screen" class="max-w-md mx-auto my-12 bg-slate-800/50 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur">
-      <div class="text-center mb-6">
-        <h2 class="text-2xl font-bold text-white">Autenticação</h2>
-        <p class="text-sm text-slate-400 mt-1">Informe o ID de Acesso e a Senha para prosseguir.</p>
-      </div>
-
-      <!-- Feedback de Erro Formal -->
-      <div id="auth-error" class="hidden mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 flex items-center gap-2">
-        <i class="fa-solid fa-circle-exclamation"></i>
-        <span id="auth-error-text">Credenciais inválidas. Verifique os dados informados.</span>
-      </div>
-
-      <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">ID de Usuário</label>
-          <input type="text" id="login-id" required placeholder="Ex: 29032014 ou ID Aleatório" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Senha de Acesso</label>
-          <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
-        </div>
-        <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/20">
-          Acessar Biblioteca
-        </button>
-      </form>
-    </section>
-
-    <!-- DASHBOARD (Exibido após login) -->
-    <div id="dashboard-screen" class="hidden space-y-6">
-
-      <!-- ADM PANEL (Apenas para ID 29032014) -->
-      <section id="admin-panel" class="hidden bg-gradient-to-r from-indigo-950/60 to-slate-800/80 border border-indigo-500/30 rounded-2xl p-6 shadow-xl">
-        <div class="flex items-center gap-2 text-indigo-400 font-bold mb-4">
-          <i class="fa-solid fa-shield-halved"></i>
-          <span>Painel de Administração</span>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <!-- Gerar Novo Acesso -->
-          <div class="bg-slate-900/60 border border-slate-700/60 p-4 rounded-xl">
-            <h4 class="text-sm font-semibold text-slate-200 mb-2">Autorizar Novo Usuário</h4>
-            <p class="text-xs text-slate-400 mb-4">Gera um ID aleatório único no sistema. O novo usuário só precisará definir a senha no primeiro acesso.</p>
-            <button onclick="createNewUserAccess()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
-              <i class="fa-solid fa-user-plus"></i> Gerar Novo ID Aleatório
+    <!-- Security Warning Modal -->
+    <div id="warning-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-red-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-red-500/10 rounded-full blur-2xl"></div>
+            <div class="flex items-center gap-4 text-red-400 mb-4">
+                <div class="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-2xl border border-red-500/20">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-white">Aviso de Segurança</h3>
+                    <p class="text-xs text-red-400/80">Sistema de Moderação Automática</p>
+                </div>
+            </div>
+            <p class="text-slate-300 text-sm mb-4 leading-relaxed" id="warning-modal-text">
+                Detectamos que uma tentativa recente de publicação violou nossas políticas de segurança (conteúdo malicioso ou inadequado). O link foi removido do banco de dados.
+            </p>
+            <div class="bg-slate-950/60 p-3 rounded-lg border border-slate-800 text-xs font-mono text-slate-400 mb-6 space-y-1">
+                <div><span class="text-slate-500">Horário:</span> <span id="warning-modal-date" class="text-red-300">--</span></div>
+                <div class="truncate"><span class="text-slate-500">URL Bloqueada:</span> <span id="warning-modal-url" class="text-slate-300">--</span></div>
+            </div>
+            <button id="btn-close-warning" class="w-full bg-red-600 hover:bg-red-500 text-white font-medium py-2.5 rounded-xl transition duration-200 shadow-lg shadow-red-600/20">
+                Compreendido
             </button>
-            <div id="new-user-created-box" class="hidden mt-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-xs text-emerald-300">
-              <p>Novo ID Gerado com Sucesso!</p>
-              <p class="font-mono text-sm font-bold text-emerald-400 mt-1" id="generated-id-display">ID: ------</p>
-            </div>
-          </div>
-
-          <!-- Gerenciar Usuários Cadastrados / Exclusão -->
-          <div class="bg-slate-900/60 border border-slate-700/60 p-4 rounded-xl">
-            <h4 class="text-sm font-semibold text-slate-200 mb-2">Usuários Registrados no Sistema</h4>
-            <div id="users-list" class="max-h-40 overflow-y-auto space-y-2 pr-1 text-xs">
-              <!-- Gerado via JS -->
-            </div>
-          </div>
         </div>
-      </section>
-
-      <!-- ADICIONAR NOVO LINK -->
-      <section class="bg-slate-800/50 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
-        <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-          <i class="fa-solid fa-plus-circle text-indigo-400"></i> Adicionar Novo Link à Biblioteca
-        </h2>
-        <form id="form-add-link" onsubmit="handleAddLink(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input type="text" id="link-title" required placeholder="Título ou Descrição do Link" class="bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
-          <input type="url" id="link-url" required placeholder="https://exemplo.com" class="bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
-          <button type="submit" id="btn-submit-link" class="py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-paper-plane"></i> Salvar na Biblioteca
-          </button>
-        </form>
-      </div </section>
-
-      <!-- FEED E LISTA DE LINKS DA BIBLIOTECA -->
-      <section>
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-folder-open text-indigo-400"></i> Links Salvos
-          </h3>
-          <span id="link-count" class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">0 Links</span>
-        </div>
-
-        <div id="links-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <!-- Os links salvos aparecem aqui via Javascript -->
-        </div>
-      </section>
-
     </div>
-  </main>
 
-  <!-- TOAST DE NOTIFICAÇÃO (COPIADO/ERRO) -->
-  <div id="toast-notification" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white text-xs px-4 py-3 rounded-xl shadow-2xl transition-all transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
-    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-    <span id="toast-message">Copiado com sucesso!</span>
-  </div>
-
-  <script>
-    // Configuração do Firebase
-    const firebaseConfig = {
-      databaseURL: "https://demo-link-library-default-rtdb.firebaseio.com" // Servidor em nuvem temporário/demonstração
-    };
-    
-    // Inicialização do Firebase se o SDK estiver disponível
-    let db = null;
-    try {
-      if (typeof firebase !== 'undefined') {
-        firebase.initializeApp(firebaseConfig);
-        db = firebase.database();
-      }
-    } catch(e) { console.warn("Modo local estático ativado."); }
-
-    // DADOS LOCAIS DE FALLBACK (Sincronizados com Firebase se ativo)
-    let state = {
-      currentUser: null,
-      users: JSON.parse(localStorage.getItem('lib_users')) || {
-        '29032014': { password: 'mamamie123', role: 'admin', created: Date.now() }
-      },
-      links: JSON.parse(localStorage.getItem('lib_links')) || [],
-      warnings: JSON.parse(localStorage.getItem('lib_warnings')) || {}
-    };
-
-    // Filtros de IA/Heurística para moderação automática
-    const MALICIOUS_PATTERNS = [
-      /porn/i, /xvideo/i, /redtube/i, /adult/i, /hentai/i, /sex/i, /xxx/i,
-      /\.exe$/i, /\.bat$/i, /malware/i, /phishing/i, /trojan/i, /virus/i
-    ];
-
-    // INICIALIZAÇÃO
-    window.addEventListener('DOMContentLoaded', () => {
-      syncWithFirebase();
-    });
-
-    // Conexão com Firebase Realtime Database
-    function syncWithFirebase() {
-      if (!db) return;
-      
-      // Sincronizar Links
-      db.ref('links').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          state.links = Object.values(data);
-          localStorage.setItem('lib_links', JSON.stringify(state.links));
-          renderLinks();
-        }
-      });
-
-      // Sincronizar Usuários
-      db.ref('users').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          state.users = data;
-          // Garantir Admin
-          state.users['29032014'] = { password: 'mamamie123', role: 'admin' };
-          localStorage.setItem('lib_users', JSON.stringify(state.users));
-          if (state.currentUser && state.currentUser.role === 'admin') {
-            renderUsersAdminList();
-          }
-        }
-      });
-
-      // Sincronizar Advertências de Segurança
-      db.ref('warnings').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          state.warnings = data;
-          checkUserWarnings();
-        }
-      });
-    }
-
-    // LOGIN & AUTENTICAÇÃO
-    function handleLogin(e) {
-      e.preventDefault();
-      const id = document.getElementById('login-id').value.trim();
-      const password = document.getElementById('login-password').value;
-      const errorBox = document.getElementById('auth-error');
-      const errorText = document.getElementById('auth-error-text');
-
-      errorBox.classList.add('hidden');
-
-      // 1. Verificar se o Usuário Existe no Banco
-      const user = state.users[id];
-
-      if (!user) {
-        // Mensagem Formal para Conta Não Localizada/Excluída
-        errorText.innerText = "A conta informada não foi localizada no sistema ou foi desativada.";
-        errorBox.classList.remove('hidden');
-        return;
-      }
-
-      // 2. Primeiro Acesso de ID sem senha cadastrada
-      if (user.password === null) {
-        // Salvar a nova senha
-        user.password = password;
-        if (db) db.ref(`users/${id}/password`).set(password);
-        localStorage.setItem('lib_users', JSON.stringify(state.users));
-        showToast("Senha cadastrada com sucesso!", "success");
-      } else if (user.password !== password) {
-        // Mensagem Formal para Senha Incorreta
-        errorText.innerText = "Credenciais inválidas. Verifique o ID e a senha informados e tente novamente.";
-        errorBox.classList.remove('hidden');
-        return;
-      }
-
-      // Login bem sucedido
-      state.currentUser = { id, role: user.role };
-      enterDashboard();
-    }
-
-    function enterDashboard() {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('dashboard-screen').classList.remove('hidden');
-      document.getElementById('header-user-info').classList.remove('hidden');
-      document.getElementById('user-display-id').innerText = `ID: ${state.currentUser.id}`;
-
-      // Exibir painel admin se for o administrador ID 29032014
-      if (state.currentUser.id === '29032014') {
-        document.getElementById('admin-panel').classList.remove('hidden');
-        renderUsersAdminList();
-      }
-
-      checkUserWarnings();
-      renderLinks();
-    }
-
-    // LOGOUT
-    document.getElementById('btn-logout').addEventListener('click', () => {
-      state.currentUser = null;
-      document.getElementById('auth-screen').classList.remove('hidden');
-      document.getElementById('dashboard-screen').classList.add('hidden');
-      document.getElementById('header-user-info').classList.add('hidden');
-      document.getElementById('admin-panel').classList.add('hidden');
-      document.getElementById('form-login').reset();
-    });
-
-    // SISTEMA ADMIN: GERAR ID ALEATÓRIO
-    function createNewUserAccess() {
-      const randomId = Math.floor(10000000 + Math.random() * 90000000).toString();
-      state.users[randomId] = { password: null, role: 'user', created: Date.now() };
-
-      if (db) db.ref(`users/${randomId}`).set(state.users[randomId]);
-      localStorage.setItem('lib_users', JSON.stringify(state.users));
-
-      document.getElementById('generated-id-display').innerText = `ID: ${randomId}`;
-      document.getElementById('new-user-created-box').classList.remove('hidden');
-      renderUsersAdminList();
-    }
-
-    // SISTEMA ADMIN: EXCLUIR USUÁRIO
-    function deleteUser(id) {
-      if (id === '29032014') {
-        showToast("Não é possível excluir o Administrador Principal.", "error");
-        return;
-      }
-
-      if (confirm(`Tem certeza que deseja desativar/excluir o acesso do ID ${id}?`)) {
-        delete state.users[id];
-        if (db) db.ref(`users/${id}`).remove();
-        localStorage.setItem('lib_users', JSON.stringify(state.users));
-        renderUsersAdminList();
-        showToast("Acesso do usuário revogado com sucesso.", "success");
-      }
-    }
-
-    function renderUsersAdminList() {
-      const container = document.getElementById('users-list');
-      container.innerHTML = '';
-
-      Object.keys(state.users).forEach(id => {
-        if (id === '29032014') return; // Omitir admin da lista de deleção
-
-        const div = document.createElement('div');
-        div.className = "flex justify-between items-center bg-slate-800/80 p-2 rounded-lg border border-slate-700";
-        div.innerHTML = `
-          <div>
-            <span class="font-mono text-indigo-300 font-semibold">ID: ${id}</span>
-            <span class="text-[10px] block text-slate-500">${state.users[id].password ? 'Senha Definida' : 'Aguardando Primeiro Acesso'}</span>
-          </div>
-          <button onclick="deleteUser('${id}')" title="Excluir Usuário" class="px-2 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded transition-colors text-xs flex items-center gap-1">
-            <i class="fa-solid fa-trash-can"></i> Excluir
-          </button>
-        `;
-        container.appendChild(div);
-      });
-
-      if (Object.keys(state.users).length <= 1) {
-        container.innerHTML = `<p class="text-slate-500 italic text-center py-2">Nenhum usuário secundário cadastrado.</p>`;
-      }
-    }
-
-    // ADICIONAR LINK & FILTRO DE SEGURANÇA IA
-    function handleAddLink(e) {
-      e.preventDefault();
-      const title = document.getElementById('link-title').value.trim();
-      const url = document.getElementById('link-url').value.trim();
-
-      // 1. IA Análise do Conteúdo / Segurança
-      const isMalicious = analyzeLinkSafety(title, url);
-
-      if (isMalicious) {
-        // Registrar Advertência no Usuário
-        const userId = state.currentUser.id;
-        state.warnings[userId] = (state.warnings[userId] || 0) + 1;
-        
-        if (db) db.ref(`warnings/${userId}`).set(state.warnings[userId]);
-        localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
-
-        showToast("Link Bloqueado por Violação de Segurança/Conteúdo Nocivo", "error");
-        checkUserWarnings();
-        document.getElementById('form-add-link').reset();
-        return;
-      }
-
-      // 2. Salvar Link Válido
-      const newLink = {
-        id: Date.now().toString(),
-        title,
-        url,
-        addedBy: state.currentUser.id,
-        timestamp: Date.now()
-      };
-
-      state.links.unshift(newLink);
-      if (db) db.ref(`links/${newLink.id}`).set(newLink);
-      localStorage.setItem('lib_links', JSON.stringify(state.links));
-
-      document.getElementById('form-add-link').reset();
-      renderLinks();
-      showToast("Link adicionado à biblioteca!", "success");
-    }
-
-    // Algoritmo de IA de Varredura de Links Maliciosos/Adultos
-    function analyzeLinkSafety(title, url) {
-      const fullText = `${title} ${url}`.toLowerCase();
-      return MALICIOUS_PATTERNS.some(pattern => pattern.test(fullText));
-    }
-
-    // VERIFICAR ADVERTÊNCIAS DO USUÁRIO
-    function checkUserWarnings() {
-      if (!state.currentUser) return;
-      const count = state.warnings[state.currentUser.id] || 0;
-      const warningBanner = document.getElementById('security-warning-banner');
-
-      if (count > 0) {
-        warningBanner.classList.remove('hidden');
-      } else {
-        warningBanner.classList.add('hidden');
-      }
-    }
-
-    function dismissWarning() {
-      document.getElementById('security-warning-banner').classList.add('hidden');
-    }
-
-    // COPIAR LINK
-    function copyLinkToClipboard(url) {
-      navigator.clipboard.writeText(url).then(() => {
-        showToast("Link copiado para a área de transferência!", "success");
-      }).catch(() => {
-        showToast("Erro ao copiar link.", "error");
-      });
-    }
-
-    // RENDERIZAR CARDS DE LINKS DA BIBLIOTECA
-    function renderLinks() {
-      const grid = document.getElementById('links-grid');
-      const countEl = document.getElementById('link-count');
-      grid.innerHTML = '';
-
-      countEl.innerText = `${state.links.length} Links`;
-
-      if (state.links.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full text-center py-12 text-slate-500">
-            <i class="fa-solid fa-link-slash text-4xl mb-3 block"></i>
-            Nenhum link foi adicionado ainda à biblioteca.
-          </div>
-        `;
-        return;
-      }
-
-      state.links.forEach(link => {
-        const card = document.createElement('div');
-        card.className = "bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5 hover:border-indigo-500/50 transition-all flex flex-col justify-between shadow-lg hover:shadow-indigo-500/10";
-        
-        card.innerHTML = `
-          <div>
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <h4 class="font-semibold text-slate-100 text-base line-clamp-2">${escapeHtml(link.title)}</h4>
-              <span class="text-[10px] bg-slate-700 text-slate-300 font-mono px-2 py-0.5 rounded-full">ID: ${link.addedBy}</span>
+    <!-- Authentication View -->
+    <div id="login-view" class="fixed inset-0 z-40 flex items-center justify-center p-4 bg-slate-950 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(120,119,198,0.15),rgba(255,255,255,0))]">
+        <div class="w-full max-w-md bg-slate-900/90 border border-slate-800 p-8 rounded-3xl shadow-2xl backdrop-blur-xl relative">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-3xl mb-3 shadow-lg shadow-cyan-500/10">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h1 class="text-2xl font-bold tracking-tight text-white">LinkVault Guard</h1>
+                <p class="text-slate-400 text-sm mt-1">Biblioteca Segura em Nuvem & Protegida por IA</p>
             </div>
-            <p class="text-xs text-indigo-400/80 font-mono break-all line-clamp-1 mb-4">${escapeHtml(link.url)}</p>
-          </div>
-          
-          <div class="pt-3 border-t border-slate-700/50 flex items-center justify-between">
-            <span class="text-[10px] text-slate-500">${new Date(link.timestamp).toLocaleDateString('pt-BR')}</span>
+
+            <form id="login-form" class="space-y-5">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">ID de Usuário</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-id-card"></i></span>
+                        <input type="text" id="login-id" required placeholder="Digite seu ID" class="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Senha</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="login-password" required placeholder="••••••••" class="w-full pl-10 pr-4 py-3 bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition">
+                    </div>
+                </div>
+
+                <!-- Formal Security Error Message (Unified for Excluded, Non-existent, or Invalid credentials) -->
+                <div id="login-error" class="hidden text-xs text-red-400 bg-red-500/10 border border-red-500/20 p-3.5 rounded-xl text-center leading-relaxed">
+                    Não foi possível realizar o login. ID de usuário ou senha incorretos. Verifique suas credenciais e tente novamente.
+                </div>
+
+                <button type="submit" id="btn-login-submit" class="w-full py-3.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-semibold rounded-xl shadow-lg shadow-cyan-600/25 transition duration-200 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-right-to-bracket"></i> Acessar Biblioteca
+                </button>
+            </form>
+
+            <div class="mt-6 pt-6 border-t border-slate-800/80 text-center text-xs text-slate-500">
+                <p>Acesso restrito. Novas autorizações de conta são concedidas exclusivamente pelo Administrador.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application View -->
+    <div id="app-view" class="hidden flex-1 flex flex-col">
+        <!-- Top Navigation Bar -->
+        <header class="sticky top-0 z-30 border-b border-slate-800/80 glass">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 flex items-center justify-center text-xl">
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </div>
+                    <div>
+                        <span class="font-bold text-lg text-white tracking-tight flex items-center gap-2">
+                            LinkVault <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Nuvem Realtime</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Controls & User Info -->
+                <div class="flex items-center gap-3">
+                    <button id="btn-open-add-modal" class="bg-cyan-600 hover:bg-cyan-500 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2 shadow-lg shadow-cyan-600/20">
+                        <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Novo Link</span>
+                    </button>
+
+                    <!-- Admin Panel Toggle Button -->
+                    <button id="btn-admin-panel" class="hidden bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3.5 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                        <i class="fa-solid fa-user-shield"></i> <span class="hidden sm:inline">Painel ADM</span>
+                    </button>
+
+                    <!-- User Information & Logout -->
+                    <div class="flex items-center gap-2 pl-3 border-l border-slate-800">
+                        <div class="text-right hidden md:block">
+                            <div class="text-xs font-bold text-slate-200 flex items-center justify-end gap-1">
+                                ID: <span id="current-user-id" class="text-cyan-400 font-mono">--</span>
+                            </div>
+                            <div id="user-role-badge" class="text-[10px] text-slate-400">Usuário Autenticado</div>
+                        </div>
+                        <button id="btn-logout" title="Sair da Conta" class="w-9 h-9 rounded-xl bg-slate-800/80 hover:bg-red-500/20 hover:text-red-400 text-slate-400 border border-slate-700/60 flex items-center justify-center transition">
+                            <i class="fa-solid fa-power-off"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
             
-            <!-- APENAS O BOTÃO DE COPIAR -->
-            <button onclick="copyLinkToClipboard('${escapeHtml(link.url)}')" class="w-full py-2 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 hover:text-indigo-200 border border-indigo-500/30 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2">
-              <i class="fa-regular fa-copy"></i> Copiar Link
-            </button>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
+            <!-- Filters & Search Bar -->
+            <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 flex flex-col md:flex-row gap-4 justify-between items-center">
+                <div class="relative w-full md:w-96">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="search-input" placeholder="Pesquisar por título, URL ou descrição..." class="w-full pl-10 pr-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition">
+                </div>
 
-    // UTILITÁRIOS
-    function showToast(message, type = "success") {
-      const toast = document.getElementById('toast-notification');
-      const icon = document.getElementById('toast-icon');
-      const msg = document.getElementById('toast-message');
+                <!-- Categories -->
+                <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 scrollbar-none" id="category-filters">
+                    <button data-cat="all" class="filter-btn active bg-cyan-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition">Todos</button>
+                    <button data-cat="geral" class="filter-btn bg-slate-800 text-slate-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition">Geral</button>
+                    <button data-cat="trabalho" class="filter-btn bg-slate-800 text-slate-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition">Trabalho</button>
+                    <button data-cat="estudo" class="filter-btn bg-slate-800 text-slate-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition">Estudo</button>
+                    <button data-cat="ferramentas" class="filter-btn bg-slate-800 text-slate-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition">Ferramentas</button>
+                    <button data-cat="outros" class="filter-btn bg-slate-800 text-slate-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition">Outros</button>
+                </div>
+            </div>
 
-      msg.innerText = message;
-      if (type === 'error') {
-        icon.className = "fa-solid fa-triangle-exclamation text-red-400";
-      } else {
-        icon.className = "fa-solid fa-circle-check text-emerald-400";
-      }
+            <!-- Links Grid -->
+            <div id="links-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Links dynamically rendered here -->
+            </div>
 
-      toast.classList.remove('translate-y-20', 'opacity-0');
-      setTimeout(() => {
-        toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3500);
-    }
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden flex-col items-center justify-center py-16 text-center border border-dashed border-slate-800 rounded-2xl bg-slate-900/30">
+                <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center text-slate-500 text-2xl mb-3">
+                    <i class="fa-solid fa-link-slash"></i>
+                </div>
+                <h3 class="text-lg font-semibold text-slate-300">Nenhum link cadastrado</h3>
+                <p class="text-slate-500 text-sm mt-1 max-w-sm">Adicione o primeiro link da biblioteca ou modifique seus filtros.</p>
+                <button id="btn-empty-add" class="mt-4 text-xs font-semibold text-cyan-400 hover:text-cyan-300 underline">Adicionar novo link</button>
+            </div>
+        </main>
+    </div>
 
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
-      });
-    }
-  </script>
+    <!-- New Link Submission Modal -->
+    <div id="add-link-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg border border-cyan-500/20">
+                        <i class="fa-solid fa-plus-circle"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Adicionar Novo Link</h2>
+                        <p class="text-xs text-slate-400">Verificação automática de segurança ativa</p>
+                    </div>
+                </div>
+                <button id="btn-close-add-modal" class="text-slate-500 hover:text-slate-300 w-8 h-8 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <form id="add-link-form" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Título do Link *</label>
+                    <input type="text" id="link-title" required placeholder="Ex: Documentação MDN Web Docs" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">URL / Endereço Web *</label>
+                    <input type="url" id="link-url" required placeholder="https://exemplo.com" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 font-mono text-xs">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Categoria</label>
+                    <select id="link-category" class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500">
+                        <option value="geral">Geral</option>
+                        <option value="trabalho">Trabalho</option>
+                        <option value="estudo">Estudo</option>
+                        <option value="ferramentas">Ferramentas</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5">Descrição (Opcional)</label>
+                    <textarea id="link-desc" rows="3" placeholder="Informações úteis sobre este link..." class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500"></textarea>
+                </div>
+
+                <div class="p-3 bg-slate-950/60 border border-slate-800 rounded-xl flex items-center gap-3 text-xs text-slate-400">
+                    <i class="fa-solid fa-robot text-cyan-400 text-base"></i>
+                    <span>A IA analisará o endereço para garantir a ausência de vírus, pornografia ou phishing.</span>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" id="btn-cancel-add" class="flex-1 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl transition">Cancelar</button>
+                    <button type="submit" id="btn-submit-link" class="flex-1 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-medium rounded-xl transition flex items-center justify-center gap-2">
+                        <span>Analisar e Salvar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Panel Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-amber-500/20 rounded-3xl p-6 sm:p-8 max-w-3xl w-full shadow-2xl relative max-h-[90vh] flex flex-col">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center text-lg border border-amber-500/20">
+                        <i class="fa-solid fa-user-gear"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Painel de Administração</h2>
+                        <p class="text-xs text-amber-400/80">Administrador Master ID: 29032014</p>
+                    </div>
+                </div>
+                <button id="btn-close-admin-modal" class="text-slate-500 hover:text-slate-300 w-8 h-8 rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-8 pr-1">
+                <!-- Create User Section -->
+                <div class="bg-slate-950/60 border border-slate-800 p-5 rounded-2xl space-y-4">
+                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-cyan-400"></i> Cadastrar / Autorizar Novo Usuário
+                    </h3>
+                    <form id="add-user-form" class="space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">ID Gerado Automático</label>
+                                <div class="relative">
+                                    <input type="text" id="new-generated-id" readonly class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700/60 rounded-xl text-sm font-mono text-cyan-400 font-bold focus:outline-none">
+                                    <button type="button" id="btn-regen-id" class="absolute right-2 top-2 text-xs bg-slate-800 hover:bg-slate-700 px-2 py-1 rounded text-slate-300" title="Gerar outro ID">
+                                        <i class="fa-solid fa-rotate"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs text-slate-400 mb-1">Senha do Usuário (Letras e/ou Números) *</label>
+                                <input type="text" id="new-user-password" required placeholder="Digite a senha" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full py-2.5 bg-amber-600 hover:bg-amber-500 text-white font-medium text-sm rounded-xl transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Autorizar e Salvar no Firebase
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Registered Users Table (With Delete Button) -->
+                <div class="space-y-3">
+                    <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-users text-cyan-400"></i> Gerenciamento de Usuários
+                    </h3>
+                    <div class="overflow-x-auto border border-slate-800 rounded-2xl">
+                        <table class="w-full text-left text-xs text-slate-300">
+                            <thead class="bg-slate-950 text-slate-400 font-semibold border-b border-slate-800">
+                                <tr>
+                                    <th class="p-3">ID do Usuário</th>
+                                    <th class="p-3">Senha</th>
+                                    <th class="p-3">Função</th>
+                                    <th class="p-3 text-right">Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-table-body" class="divide-y divide-slate-800/60 bg-slate-900/40">
+                                <!-- Populated dynamically from Firebase -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Security Incident Logs -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-shield-virus text-red-400"></i> Histórico de Links Bloqueados pela IA
+                        </h3>
+                        <span id="log-count-badge" class="px-2 py-0.5 rounded-full bg-red-500/10 text-red-400 border border-red-500/20 text-[10px] font-bold">0 Registros</span>
+                    </div>
+                    <div id="admin-logs-container" class="space-y-2 max-h-48 overflow-y-auto">
+                        <!-- Populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Imports and Main Application Script -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // APP CONSTANTS & CREDENTIALS
+        const MASTER_ADMIN_ID = "29032014";
+        const MASTER_ADMIN_PASS = "mamamie123";
+
+        // Dynamic Firebase Environment Fallback
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'linkvault-app-default';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : {
+                apiKey: "AIzaSyDemoKeyOnlyForFallback1234567",
+                authDomain: "demo-app.firebaseapp.com",
+                projectId: "demo-app",
+                storageBucket: "demo-app.appspot.com",
+                messagingSenderId: "123456789",
+                appId: "1:123456789:web:abcdef"
+            };
+
+        // INITIALIZE FIREBASE
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // MANDATORY PATHS ACCORDING TO RULE 1
+        const LINKS_COLLECTION = collection(db, 'artifacts', appId, 'public', 'data', 'links');
+        const USERS_COLLECTION = collection(db, 'artifacts', appId, 'public', 'data', 'users');
+        const LOGS_COLLECTION = collection(db, 'artifacts', appId, 'public', 'data', 'security_logs');
+        const WARNINGS_COLLECTION = collection(db, 'artifacts', appId, 'public', 'data', 'user_warnings');
+
+        // APPLICATION STATE
+        let currentUser = null;
+        let currentCategory = 'all';
+        let firebaseUsersList = [];
+        let firebaseLinksList = [];
+        let firebaseLogsList = [];
+        let isAuthenticatedFirebase = false;
+
+        // AUTHENTICATION BOOTSTRAP
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                isAuthenticatedFirebase = true;
+                setupRealtimeListeners();
+            } catch (err) {
+                console.error("Firebase Auth Error:", err);
+            }
+        }
+
+        // REAL-TIME FIRESTORE LISTENERS
+        function setupRealtimeListeners() {
+            if (!isAuthenticatedFirebase) return;
+
+            // 1. Listen for Links Real-time
+            onSnapshot(LINKS_COLLECTION, (snapshot) => {
+                firebaseLinksList = [];
+                snapshot.forEach(docSnap => {
+                    firebaseLinksList.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                // Sort in memory by creation date
+                firebaseLinksList.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+                if (currentUser) renderLinks();
+            }, (err) => console.error("Links listener error:", err));
+
+            // 2. Listen for Users Real-time
+            onSnapshot(USERS_COLLECTION, async (snapshot) => {
+                firebaseUsersList = [];
+                snapshot.forEach(docSnap => {
+                    firebaseUsersList.push({ id: docSnap.id, ...docSnap.data() });
+                });
+
+                // Ensure Master Admin always exists in Cloud Storage
+                const masterExists = firebaseUsersList.some(u => u.id === MASTER_ADMIN_ID);
+                if (!masterExists) {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', MASTER_ADMIN_ID), {
+                        password: MASTER_ADMIN_PASS,
+                        role: 'admin',
+                        createdAt: new Date().toISOString()
+                    });
+                }
+
+                // Check if current logged in user was deleted/excluded by ADM in real-time
+                if (currentUser && currentUser.id !== MASTER_ADMIN_ID) {
+                    const activeUser = firebaseUsersList.find(u => u.id === currentUser.id);
+                    if (!activeUser) {
+                        // User was deleted! Kick out immediately.
+                        currentUser = null;
+                        document.getElementById('app-view').classList.add('hidden');
+                        document.getElementById('login-view').classList.remove('hidden');
+                        document.getElementById('login-error').classList.remove('hidden');
+                        showToast("Sua sessão foi encerrada.", "warning");
+                    }
+                }
+
+                if (currentUser && currentUser.id === MASTER_ADMIN_ID) {
+                    renderUsersTable();
+                }
+            }, (err) => console.error("Users listener error:", err));
+
+            // 3. Listen for Security Logs
+            onSnapshot(LOGS_COLLECTION, (snapshot) => {
+                firebaseLogsList = [];
+                snapshot.forEach(docSnap => {
+                    firebaseLogsList.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                firebaseLogsList.sort((a, b) => new Date(b.timestamp) - new Date(a.createdAt || b.timestamp));
+                if (currentUser && currentUser.id === MASTER_ADMIN_ID) renderAdminLogs();
+            }, (err) => console.error("Logs listener error:", err));
+
+            // 4. Listen for User Warnings Real-Time
+            onSnapshot(WARNINGS_COLLECTION, (snapshot) => {
+                snapshot.forEach(docSnap => {
+                    if (currentUser && docSnap.id === currentUser.id) {
+                        const warnData = docSnap.data();
+                        showWarningModal(warnData.reason, warnData.url, warnData.timestamp);
+                        // Delete warning after displaying
+                        deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'user_warnings', currentUser.id));
+                    }
+                });
+            }, (err) => console.error("Warnings listener error:", err));
+        }
+
+        // Blacklist for Fallback Inspection
+        const MALICIOUS_PATTERNS = [
+            /porn/i, /sex/i, /xvideos/i, /pornhub/i, /hentai/i, /adult/i, /erotic/i, /xxx/i, /redtube/i,
+            /virus/i, /malware/i, /trojan/i, /phishing/i, /keylogger/i, /exploit/i, /hacktool/i,
+            /\.exe$/i, /\.vbs$/i, /\.bat$/i, /\.scr$/i, /\.cmd$/i, /\.pif$/i
+        ];
+
+        async function inspectLinkWithAI(title, url, description) {
+            const combinedContent = `${title} ${url} ${description}`.toLowerCase();
+
+            // Instant Pattern Matcher
+            for (const pattern of MALICIOUS_PATTERNS) {
+                if (pattern.test(combinedContent)) {
+                    return {
+                        isSafe: false,
+                        reason: 'Conteúdo sinalizado por conter termos sensíveis, eróticos ou ameaças digitais.'
+                    };
+                }
+            }
+
+            // Gemini API Semantic Classifier (If Key Available)
+            try {
+                const apiKey = ""; 
+                if (apiKey) {
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+                    const prompt = `Analise este link: Título: "${title}", URL: "${url}", Descrição: "${description}". Responda em JSON: {"isSafe": true/false, "reason": "motivo em portugues"}. Bloqueie vírus, phishing, malware e pornografia.`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }],
+                            generationConfig: { responseMimeType: "application/json" }
+                        })
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                        if (text) return JSON.parse(text);
+                    }
+                }
+            } catch (e) {}
+
+            return { isSafe: true, reason: 'Aprovado' };
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgColors = {
+                success: 'bg-emerald-950/90 border-emerald-500/40 text-emerald-200',
+                error: 'bg-red-950/90 border-red-500/40 text-red-200',
+                warning: 'bg-amber-950/90 border-amber-500/40 text-amber-200',
+                info: 'bg-slate-900/90 border-cyan-500/40 text-cyan-200'
+            };
+
+            const icons = {
+                success: 'fa-circle-check text-emerald-400',
+                error: 'fa-shield-xmark text-red-400',
+                warning: 'fa-triangle-exclamation text-amber-400',
+                info: 'fa-circle-info text-cyan-400'
+            };
+
+            toast.className = `p-4 rounded-2xl border shadow-xl backdrop-blur-md flex items-center gap-3 pointer-events-auto transform transition duration-300 translate-y-2 opacity-0 text-xs font-medium ${bgColors[type] || bgColors.info}`;
+            toast.innerHTML = `
+                <i class="fa-solid ${icons[type] || icons.info} text-lg"></i>
+                <div class="flex-1">${message}</div>
+                <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            `;
+
+            container.appendChild(toast);
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            });
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        function showWarningModal(reason, url, timestamp) {
+            document.getElementById('warning-modal-text').textContent = reason;
+            document.getElementById('warning-modal-date').textContent = new Date(timestamp).toLocaleString('pt-BR');
+            document.getElementById('warning-modal-url').textContent = url;
+            document.getElementById('warning-modal').classList.remove('hidden');
+        }
+
+        document.getElementById('btn-close-warning').addEventListener('click', () => {
+            document.getElementById('warning-modal').classList.add('hidden');
+        });
+
+        function generateRandomId() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        // Form Login Submission
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('login-id').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+            const loginError = document.getElementById('login-error');
+
+            loginError.classList.add('hidden');
+
+            // Find user in Firestore cache
+            const foundUser = firebaseUsersList.find(u => u.id === id && u.password === password);
+
+            if (foundUser) {
+                currentUser = foundUser;
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('app-view').classList.remove('hidden');
+
+                document.getElementById('current-user-id').textContent = currentUser.id;
+                const userRoleBadge = document.getElementById('user-role-badge');
+                const btnAdminPanel = document.getElementById('btn-admin-panel');
+
+                if (currentUser.id === MASTER_ADMIN_ID) {
+                    userRoleBadge.textContent = 'Administrador Master';
+                    userRoleBadge.className = 'text-[10px] text-amber-400 font-semibold';
+                    btnAdminPanel.classList.remove('hidden');
+                } else {
+                    userRoleBadge.textContent = 'Usuário Autorizado';
+                    userRoleBadge.className = 'text-[10px] text-cyan-400';
+                    btnAdminPanel.classList.add('hidden');
+                }
+
+                renderLinks();
+                showToast(`Autenticado com sucesso como ID ${currentUser.id}`, 'success');
+            } else {
+                // Formal Error Message for Deleted, Non-existent or Incorrect Password
+                loginError.classList.remove('hidden');
+            }
+        });
+
+        // Logout Event
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            currentUser = null;
+            document.getElementById('login-form').reset();
+            document.getElementById('app-view').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+            showToast('Sessão encerrada com segurança.', 'info');
+        });
+
+        function renderLinks() {
+            const container = document.getElementById('links-container');
+            const emptyState = document.getElementById('empty-state');
+            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+
+            const filteredLinks = firebaseLinksList.filter(link => {
+                const matchesCategory = currentCategory === 'all' || link.category === currentCategory;
+                const matchesSearch = (link.title || '').toLowerCase().includes(searchTerm) ||
+                                      (link.url || '').toLowerCase().includes(searchTerm) ||
+                                      (link.description || '').toLowerCase().includes(searchTerm);
+                return matchesCategory && matchesSearch;
+            });
+
+            container.innerHTML = '';
+
+            if (filteredLinks.length === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+            } else {
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+
+                filteredLinks.forEach(link => {
+                    const card = document.createElement('div');
+                    card.className = "bg-slate-900/80 border border-slate-800 hover:border-slate-700/80 rounded-2xl p-5 shadow-lg flex flex-col justify-between transition-all duration-200 group";
+                    const formattedDate = new Date(link.createdAt).toLocaleDateString('pt-BR');
+
+                    card.innerHTML = `
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-3">
+                                <span class="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-cyan-400 border border-slate-700/50">
+                                    ${escapeHtml(link.category || 'Geral')}
+                                </span>
+                                <span class="text-[11px] text-slate-500 font-mono">ID Criador: <strong class="text-slate-400">${escapeHtml(link.createdBy || '--')}</strong></span>
+                            </div>
+                            <h3 class="font-bold text-white text-base group-hover:text-cyan-400 transition-colors line-clamp-1 mb-1.5">${escapeHtml(link.title)}</h3>
+                            <p class="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed">${escapeHtml(link.description || 'Sem descrição cadastrada.')}</p>
+                        </div>
+
+                        <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                            <span class="text-[10px] text-slate-500"><i class="fa-regular fa-clock mr-1"></i>${formattedDate}</span>
+                            
+                            <!-- ONLY COPY BUTTON (NO OPEN BUTTON) -->
+                            <button data-url="${escapeHtml(link.url)}" class="btn-copy-url px-3.5 py-2 rounded-xl bg-cyan-600/20 hover:bg-cyan-600 text-cyan-300 hover:text-white border border-cyan-500/30 transition text-xs font-semibold flex items-center gap-2 shadow-sm">
+                                <i class="fa-regular fa-copy"></i>
+                                <span>Copiar Link</span>
+                            </button>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                });
+
+                // Attach Event Listeners to Copy Buttons
+                document.querySelectorAll('.btn-copy-url').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const urlToCopy = e.currentTarget.getAttribute('data-url');
+                        copyToClipboard(urlToCopy);
+                    });
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        function copyToClipboard(text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            showToast('Link copiado para a área de transferência!', 'success');
+        }
+
+        // Category Filter Buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.className = "filter-btn bg-slate-800 text-slate-400 hover:text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition";
+                });
+                btn.className = "filter-btn active bg-cyan-600 text-white px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition";
+                currentCategory = btn.getAttribute('data-cat');
+                renderLinks();
+            });
+        });
+
+        document.getElementById('search-input').addEventListener('input', renderLinks);
+
+        // Modal Event Listeners
+        const addLinkModal = document.getElementById('add-link-modal');
+        document.getElementById('btn-open-add-modal').addEventListener('click', () => addLinkModal.classList.remove('hidden'));
+        document.getElementById('btn-empty-add').addEventListener('click', () => addLinkModal.classList.remove('hidden'));
+        document.getElementById('btn-close-add-modal').addEventListener('click', () => addLinkModal.classList.add('hidden'));
+        document.getElementById('btn-cancel-add').addEventListener('click', () => addLinkModal.classList.add('hidden'));
+
+        // Save Link to Firebase Realtime Database
+        document.getElementById('add-link-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const title = document.getElementById('link-title').value.trim();
+            const url = document.getElementById('link-url').value.trim();
+            const category = document.getElementById('link-category').value;
+            const description = document.getElementById('link-desc').value.trim();
+            const btnSubmit = document.getElementById('btn-submit-link');
+
+            btnSubmit.disabled = true;
+            btnSubmit.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Inspectando...`;
+
+            // Execute AI Scan
+            const inspection = await inspectLinkWithAI(title, url, description);
+
+            btnSubmit.disabled = false;
+            btnSubmit.innerHTML = `<span>Analisar e Salvar</span>`;
+
+            if (!inspection.isSafe) {
+                // BLOCK LINK
+                addLinkModal.classList.add('hidden');
+                document.getElementById('add-link-form').reset();
+
+                // 1. Record Security Log in Firestore
+                const logId = 'log_' + Date.now();
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'security_logs', logId), {
+                    userId: currentUser.id,
+                    url: url,
+                    title: title,
+                    reason: inspection.reason,
+                    timestamp: new Date().toISOString()
+                });
+
+                // 2. Record Warning for User in Firestore
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'user_warnings', currentUser.id), {
+                    reason: inspection.reason,
+                    url: url,
+                    timestamp: new Date().toISOString()
+                });
+
+                showToast(`[BLOQUEADO PELA IA] Link removido: ${inspection.reason}`, 'error');
+                return;
+            }
+
+            // Save Approved Link in Firestore Database
+            const linkId = 'link_' + Date.now();
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'links', linkId), {
+                title,
+                url,
+                category,
+                description,
+                createdBy: currentUser.id,
+                createdAt: new Date().toISOString()
+            });
+
+            addLinkModal.classList.add('hidden');
+            document.getElementById('add-link-form').reset();
+            showToast('Link validado pela IA e salvo na nuvem!', 'success');
+        });
+
+        // Admin Panel Logic
+        const adminModal = document.getElementById('admin-modal');
+        document.getElementById('btn-admin-panel').addEventListener('click', () => {
+            if (currentUser.id !== MASTER_ADMIN_ID) return;
+            document.getElementById('new-generated-id').value = generateRandomId();
+            renderUsersTable();
+            renderAdminLogs();
+            adminModal.classList.remove('hidden');
+        });
+
+        document.getElementById('btn-close-admin-modal').addEventListener('click', () => adminModal.classList.add('hidden'));
+        document.getElementById('btn-regen-id').addEventListener('click', () => {
+            document.getElementById('new-generated-id').value = generateRandomId();
+        });
+
+        // Register New User in Firestore
+        document.getElementById('add-user-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const newId = document.getElementById('new-generated-id').value.trim();
+            const newPassword = document.getElementById('new-user-password').value.trim();
+
+            if (firebaseUsersList.some(u => u.id === newId)) {
+                showToast('Este ID de usuário já está em uso.', 'warning');
+                return;
+            }
+
+            await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', newId), {
+                password: newPassword,
+                role: 'user',
+                createdAt: new Date().toISOString()
+            });
+
+            document.getElementById('new-user-password').value = '';
+            document.getElementById('new-generated-id').value = generateRandomId();
+            showToast(`Usuário ID ${newId} autorizado e salvo na nuvem!`, 'success');
+        });
+
+        // Render Users Table in Admin Modal
+        function renderUsersTable() {
+            const tbody = document.getElementById('users-table-body');
+            tbody.innerHTML = '';
+
+            firebaseUsersList.forEach(u => {
+                const tr = document.createElement('tr');
+                const isMaster = u.id === MASTER_ADMIN_ID;
+
+                tr.innerHTML = `
+                    <td class="p-3 font-mono font-bold text-cyan-400">${u.id}</td>
+                    <td class="p-3 font-mono text-slate-300">${escapeHtml(u.password)}</td>
+                    <td class="p-3">
+                        <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${isMaster ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-800 text-slate-400'}">
+                            ${isMaster ? 'ADM MASTER' : 'Usuário'}
+                        </span>
+                    </td>
+                    <td class="p-3 text-right">
+                        ${!isMaster ? `
+                            <button data-userid="${u.id}" class="btn-delete-user bg-red-500/10 hover:bg-red-500/30 text-red-400 border border-red-500/30 px-2.5 py-1 rounded-lg transition text-xs font-semibold flex items-center gap-1.5 ml-auto" title="Excluir Usuário">
+                                <i class="fa-solid fa-trash-can"></i>
+                                <span>Excluir</span>
+                            </button>
+                        ` : '<span class="text-slate-600 text-[10px]">Protegido</span>'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Attach Delete User Handlers
+            document.querySelectorAll('.btn-delete-user').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const targetId = e.currentTarget.getAttribute('data-userid');
+                    if (targetId && targetId !== MASTER_ADMIN_ID) {
+                        await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'users', targetId));
+                        showToast(`Usuário ID ${targetId} excluído com sucesso.`, 'info');
+                    }
+                });
+            });
+        }
+
+        function renderAdminLogs() {
+            const container = document.getElementById('admin-logs-container');
+            container.innerHTML = '';
+            document.getElementById('log-count-badge').textContent = `${firebaseLogsList.length} Registros`;
+
+            if (firebaseLogsList.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 italic p-3 text-center">Nenhuma violação registrada até o momento.</p>`;
+                return;
+            }
+
+            firebaseLogsList.forEach(log => {
+                const item = document.createElement('div');
+                item.className = "bg-red-950/20 border border-red-500/20 rounded-xl p-3 text-xs text-slate-300 space-y-1";
+                item.innerHTML = `
+                    <div class="flex items-center justify-between text-red-400 font-semibold">
+                        <span><i class="fa-solid fa-user-slash mr-1"></i> Infrator ID: ${escapeHtml(log.userId)}</span>
+                        <span class="text-[10px] text-slate-500">${new Date(log.timestamp).toLocaleString('pt-BR')}</span>
+                    </div>
+                    <div class="truncate text-slate-400"><strong class="text-slate-300">URL:</strong> ${escapeHtml(log.url)}</div>
+                    <div class="text-[11px] text-red-300"><strong class="text-slate-400">Motivo:</strong> ${escapeHtml(log.reason)}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Initialize Firebase Authentication
+        initAuth();
+    </script>
 </body>
 </html>
+```
