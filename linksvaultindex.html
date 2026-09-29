@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca Central de Links</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Firebase App & Realtime Database SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col">
+
+  <!-- TOP BAR -->
+  <header class="bg-slate-800/80 backdrop-blur border-b border-slate-700 sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+          <i class="fa-solid fa-bookmark text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight text-white">LinkCloud</h1>
+          <p class="text-xs text-slate-400">Biblioteca Central de Links</p>
+        </div>
+      </div>
+
+      <!-- Auth State Header -->
+      <div id="header-user-info" class="hidden flex items-center space-x-4">
+        <div class="text-right">
+          <p class="text-xs text-slate-400">Conectado como</p>
+          <p id="user-display-id" class="text-sm font-semibold text-indigo-400">ID: ----</p>
+        </div>
+        <button id="btn-logout" class="px-3 py-1.5 text-xs bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-right-from-bracket"></i> Sair
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTAINER PRINCIPAL -->
+  <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6">
+
+    <!-- ALERT SYSTEM DE AVISO EM TEMPO REAL -->
+    <div id="security-warning-banner" class="hidden mb-6 bg-red-950/80 border border-red-500/50 p-4 rounded-2xl flex items-start gap-4 animate-pulse">
+      <div class="p-2 bg-red-500/20 text-red-400 rounded-xl">
+        <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
+      </div>
+      <div class="flex-grow">
+        <h3 class="font-bold text-red-300">Aviso de Segurança e Moderação</h3>
+        <p id="warning-message-text" class="text-sm text-red-200/80 mt-1">Sua conta tentou enviar um link potencialmente nocivo ou em desacordo com as diretrizes da biblioteca. O link foi removido pelo sistema de IA.</p>
+      </div>
+      <button onclick="dismissWarning()" class="text-red-400 hover:text-red-200 text-sm">
+        <i class="fa-solid fa-xmark text-lg"></i>
+      </button>
+    </div>
+
+    <!-- TELA DE LOGIN / AUTENTICAÇÃO -->
+    <section id="auth-screen" class="max-w-md mx-auto my-12 bg-slate-800/50 border border-slate-700/80 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur">
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-white">Autenticação</h2>
+        <p class="text-sm text-slate-400 mt-1">Informe o ID de Acesso e a Senha para prosseguir.</p>
+      </div>
+
+      <!-- Feedback de Erro Formal -->
+      <div id="auth-error" class="hidden mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-xs text-red-400 flex items-center gap-2">
+        <i class="fa-solid fa-circle-exclamation"></i>
+        <span id="auth-error-text">Credenciais inválidas. Verifique os dados informados.</span>
+      </div>
+
+      <form id="form-login" onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">ID de Usuário</label>
+          <input type="text" id="login-id" required placeholder="Ex: 29032014 ou ID Aleatório" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Senha de Acesso</label>
+          <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
+        </div>
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-indigo-500/20">
+          Acessar Biblioteca
+        </button>
+      </form>
+    </section>
+
+    <!-- DASHBOARD (Exibido após login) -->
+    <div id="dashboard-screen" class="hidden space-y-6">
+
+      <!-- ADM PANEL (Apenas para ID 29032014) -->
+      <section id="admin-panel" class="hidden bg-gradient-to-r from-indigo-950/60 to-slate-800/80 border border-indigo-500/30 rounded-2xl p-6 shadow-xl">
+        <div class="flex items-center gap-2 text-indigo-400 font-bold mb-4">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Painel de Administração</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Gerar Novo Acesso -->
+          <div class="bg-slate-900/60 border border-slate-700/60 p-4 rounded-xl">
+            <h4 class="text-sm font-semibold text-slate-200 mb-2">Autorizar Novo Usuário</h4>
+            <p class="text-xs text-slate-400 mb-4">Gera um ID aleatório único no sistema. O novo usuário só precisará definir a senha no primeiro acesso.</p>
+            <button onclick="createNewUserAccess()" class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-lg transition-colors flex items-center justify-center gap-2">
+              <i class="fa-solid fa-user-plus"></i> Gerar Novo ID Aleatório
+            </button>
+            <div id="new-user-created-box" class="hidden mt-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-lg text-xs text-emerald-300">
+              <p>Novo ID Gerado com Sucesso!</p>
+              <p class="font-mono text-sm font-bold text-emerald-400 mt-1" id="generated-id-display">ID: ------</p>
+            </div>
+          </div>
+
+          <!-- Gerenciar Usuários Cadastrados / Exclusão -->
+          <div class="bg-slate-900/60 border border-slate-700/60 p-4 rounded-xl">
+            <h4 class="text-sm font-semibold text-slate-200 mb-2">Usuários Registrados no Sistema</h4>
+            <div id="users-list" class="max-h-40 overflow-y-auto space-y-2 pr-1 text-xs">
+              <!-- Gerado via JS -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADICIONAR NOVO LINK -->
+      <section class="bg-slate-800/50 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+        <h2 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle text-indigo-400"></i> Adicionar Novo Link à Biblioteca
+        </h2>
+        <form id="form-add-link" onsubmit="handleAddLink(event)" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input type="text" id="link-title" required placeholder="Título ou Descrição do Link" class="bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
+          <input type="url" id="link-url" required placeholder="https://exemplo.com" class="bg-slate-900/80 border border-slate-700 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-indigo-500 text-sm">
+          <button type="submit" id="btn-submit-link" class="py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2">
+            <i class="fa-solid fa-paper-plane"></i> Salvar na Biblioteca
+          </button>
+        </form>
+      </div </section>
+
+      <!-- FEED E LISTA DE LINKS DA BIBLIOTECA -->
+      <section>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-folder-open text-indigo-400"></i> Links Salvos
+          </h3>
+          <span id="link-count" class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700">0 Links</span>
+        </div>
+
+        <div id="links-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Os links salvos aparecem aqui via Javascript -->
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- TOAST DE NOTIFICAÇÃO (COPIADO/ERRO) -->
+  <div id="toast-notification" class="fixed bottom-5 right-5 bg-slate-800 border border-slate-700 text-white text-xs px-4 py-3 rounded-xl shadow-2xl transition-all transform translate-y-20 opacity-0 flex items-center gap-2 z-50">
+    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toast-message">Copiado com sucesso!</span>
+  </div>
+
+  <script>
+    // Configuração do Firebase
+    const firebaseConfig = {
+      databaseURL: "https://demo-link-library-default-rtdb.firebaseio.com" // Servidor em nuvem temporário/demonstração
+    };
+    
+    // Inicialização do Firebase se o SDK estiver disponível
+    let db = null;
+    try {
+      if (typeof firebase !== 'undefined') {
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+      }
+    } catch(e) { console.warn("Modo local estático ativado."); }
+
+    // DADOS LOCAIS DE FALLBACK (Sincronizados com Firebase se ativo)
+    let state = {
+      currentUser: null,
+      users: JSON.parse(localStorage.getItem('lib_users')) || {
+        '29032014': { password: 'mamamie123', role: 'admin', created: Date.now() }
+      },
+      links: JSON.parse(localStorage.getItem('lib_links')) || [],
+      warnings: JSON.parse(localStorage.getItem('lib_warnings')) || {}
+    };
+
+    // Filtros de IA/Heurística para moderação automática
+    const MALICIOUS_PATTERNS = [
+      /porn/i, /xvideo/i, /redtube/i, /adult/i, /hentai/i, /sex/i, /xxx/i,
+      /\.exe$/i, /\.bat$/i, /malware/i, /phishing/i, /trojan/i, /virus/i
+    ];
+
+    // INICIALIZAÇÃO
+    window.addEventListener('DOMContentLoaded', () => {
+      syncWithFirebase();
+    });
+
+    // Conexão com Firebase Realtime Database
+    function syncWithFirebase() {
+      if (!db) return;
+      
+      // Sincronizar Links
+      db.ref('links').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          state.links = Object.values(data);
+          localStorage.setItem('lib_links', JSON.stringify(state.links));
+          renderLinks();
+        }
+      });
+
+      // Sincronizar Usuários
+      db.ref('users').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          state.users = data;
+          // Garantir Admin
+          state.users['29032014'] = { password: 'mamamie123', role: 'admin' };
+          localStorage.setItem('lib_users', JSON.stringify(state.users));
+          if (state.currentUser && state.currentUser.role === 'admin') {
+            renderUsersAdminList();
+          }
+        }
+      });
+
+      // Sincronizar Advertências de Segurança
+      db.ref('warnings').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          state.warnings = data;
+          checkUserWarnings();
+        }
+      });
+    }
+
+    // LOGIN & AUTENTICAÇÃO
+    function handleLogin(e) {
+      e.preventDefault();
+      const id = document.getElementById('login-id').value.trim();
+      const password = document.getElementById('login-password').value;
+      const errorBox = document.getElementById('auth-error');
+      const errorText = document.getElementById('auth-error-text');
+
+      errorBox.classList.add('hidden');
+
+      // 1. Verificar se o Usuário Existe no Banco
+      const user = state.users[id];
+
+      if (!user) {
+        // Mensagem Formal para Conta Não Localizada/Excluída
+        errorText.innerText = "A conta informada não foi localizada no sistema ou foi desativada.";
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      // 2. Primeiro Acesso de ID sem senha cadastrada
+      if (user.password === null) {
+        // Salvar a nova senha
+        user.password = password;
+        if (db) db.ref(`users/${id}/password`).set(password);
+        localStorage.setItem('lib_users', JSON.stringify(state.users));
+        showToast("Senha cadastrada com sucesso!", "success");
+      } else if (user.password !== password) {
+        // Mensagem Formal para Senha Incorreta
+        errorText.innerText = "Credenciais inválidas. Verifique o ID e a senha informados e tente novamente.";
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      // Login bem sucedido
+      state.currentUser = { id, role: user.role };
+      enterDashboard();
+    }
+
+    function enterDashboard() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('dashboard-screen').classList.remove('hidden');
+      document.getElementById('header-user-info').classList.remove('hidden');
+      document.getElementById('user-display-id').innerText = `ID: ${state.currentUser.id}`;
+
+      // Exibir painel admin se for o administrador ID 29032014
+      if (state.currentUser.id === '29032014') {
+        document.getElementById('admin-panel').classList.remove('hidden');
+        renderUsersAdminList();
+      }
+
+      checkUserWarnings();
+      renderLinks();
+    }
+
+    // LOGOUT
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      state.currentUser = null;
+      document.getElementById('auth-screen').classList.remove('hidden');
+      document.getElementById('dashboard-screen').classList.add('hidden');
+      document.getElementById('header-user-info').classList.add('hidden');
+      document.getElementById('admin-panel').classList.add('hidden');
+      document.getElementById('form-login').reset();
+    });
+
+    // SISTEMA ADMIN: GERAR ID ALEATÓRIO
+    function createNewUserAccess() {
+      const randomId = Math.floor(10000000 + Math.random() * 90000000).toString();
+      state.users[randomId] = { password: null, role: 'user', created: Date.now() };
+
+      if (db) db.ref(`users/${randomId}`).set(state.users[randomId]);
+      localStorage.setItem('lib_users', JSON.stringify(state.users));
+
+      document.getElementById('generated-id-display').innerText = `ID: ${randomId}`;
+      document.getElementById('new-user-created-box').classList.remove('hidden');
+      renderUsersAdminList();
+    }
+
+    // SISTEMA ADMIN: EXCLUIR USUÁRIO
+    function deleteUser(id) {
+      if (id === '29032014') {
+        showToast("Não é possível excluir o Administrador Principal.", "error");
+        return;
+      }
+
+      if (confirm(`Tem certeza que deseja desativar/excluir o acesso do ID ${id}?`)) {
+        delete state.users[id];
+        if (db) db.ref(`users/${id}`).remove();
+        localStorage.setItem('lib_users', JSON.stringify(state.users));
+        renderUsersAdminList();
+        showToast("Acesso do usuário revogado com sucesso.", "success");
+      }
+    }
+
+    function renderUsersAdminList() {
+      const container = document.getElementById('users-list');
+      container.innerHTML = '';
+
+      Object.keys(state.users).forEach(id => {
+        if (id === '29032014') return; // Omitir admin da lista de deleção
+
+        const div = document.createElement('div');
+        div.className = "flex justify-between items-center bg-slate-800/80 p-2 rounded-lg border border-slate-700";
+        div.innerHTML = `
+          <div>
+            <span class="font-mono text-indigo-300 font-semibold">ID: ${id}</span>
+            <span class="text-[10px] block text-slate-500">${state.users[id].password ? 'Senha Definida' : 'Aguardando Primeiro Acesso'}</span>
+          </div>
+          <button onclick="deleteUser('${id}')" title="Excluir Usuário" class="px-2 py-1 bg-red-500/20 hover:bg-red-500/40 text-red-400 rounded transition-colors text-xs flex items-center gap-1">
+            <i class="fa-solid fa-trash-can"></i> Excluir
+          </button>
+        `;
+        container.appendChild(div);
+      });
+
+      if (Object.keys(state.users).length <= 1) {
+        container.innerHTML = `<p class="text-slate-500 italic text-center py-2">Nenhum usuário secundário cadastrado.</p>`;
+      }
+    }
+
+    // ADICIONAR LINK & FILTRO DE SEGURANÇA IA
+    function handleAddLink(e) {
+      e.preventDefault();
+      const title = document.getElementById('link-title').value.trim();
+      const url = document.getElementById('link-url').value.trim();
+
+      // 1. IA Análise do Conteúdo / Segurança
+      const isMalicious = analyzeLinkSafety(title, url);
+
+      if (isMalicious) {
+        // Registrar Advertência no Usuário
+        const userId = state.currentUser.id;
+        state.warnings[userId] = (state.warnings[userId] || 0) + 1;
+        
+        if (db) db.ref(`warnings/${userId}`).set(state.warnings[userId]);
+        localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
+
+        showToast("Link Bloqueado por Violação de Segurança/Conteúdo Nocivo", "error");
+        checkUserWarnings();
+        document.getElementById('form-add-link').reset();
+        return;
+      }
+
+      // 2. Salvar Link Válido
+      const newLink = {
+        id: Date.now().toString(),
+        title,
+        url,
+        addedBy: state.currentUser.id,
+        timestamp: Date.now()
+      };
+
+      state.links.unshift(newLink);
+      if (db) db.ref(`links/${newLink.id}`).set(newLink);
+      localStorage.setItem('lib_links', JSON.stringify(state.links));
+
+      document.getElementById('form-add-link').reset();
+      renderLinks();
+      showToast("Link adicionado à biblioteca!", "success");
+    }
+
+    // Algoritmo de IA de Varredura de Links Maliciosos/Adultos
+    function analyzeLinkSafety(title, url) {
+      const fullText = `${title} ${url}`.toLowerCase();
+      return MALICIOUS_PATTERNS.some(pattern => pattern.test(fullText));
+    }
+
+    // VERIFICAR ADVERTÊNCIAS DO USUÁRIO
+    function checkUserWarnings() {
+      if (!state.currentUser) return;
+      const count = state.warnings[state.currentUser.id] || 0;
+      const warningBanner = document.getElementById('security-warning-banner');
+
+      if (count > 0) {
+        warningBanner.classList.remove('hidden');
+      } else {
+        warningBanner.classList.add('hidden');
+      }
+    }
+
+    function dismissWarning() {
+      document.getElementById('security-warning-banner').classList.add('hidden');
+    }
+
+    // COPIAR LINK
+    function copyLinkToClipboard(url) {
+      navigator.clipboard.writeText(url).then(() => {
+        showToast("Link copiado para a área de transferência!", "success");
+      }).catch(() => {
+        showToast("Erro ao copiar link.", "error");
+      });
+    }
+
+    // RENDERIZAR CARDS DE LINKS DA BIBLIOTECA
+    function renderLinks() {
+      const grid = document.getElementById('links-grid');
+      const countEl = document.getElementById('link-count');
+      grid.innerHTML = '';
+
+      countEl.innerText = `${state.links.length} Links`;
+
+      if (state.links.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 text-slate-500">
+            <i class="fa-solid fa-link-slash text-4xl mb-3 block"></i>
+            Nenhum link foi adicionado ainda à biblioteca.
+          </div>
+        `;
+        return;
+      }
+
+      state.links.forEach(link => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800/60 border border-slate-700/80 rounded-2xl p-5 hover:border-indigo-500/50 transition-all flex flex-col justify-between shadow-lg hover:shadow-indigo-500/10";
+        
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2">
+              <h4 class="font-semibold text-slate-100 text-base line-clamp-2">${escapeHtml(link.title)}</h4>
+              <span class="text-[10px] bg-slate-700 text-slate-300 font-mono px-2 py-0.5 rounded-full">ID: ${link.addedBy}</span>
+            </div>
+            <p class="text-xs text-indigo-400/80 font-mono break-all line-clamp-1 mb-4">${escapeHtml(link.url)}</p>
+          </div>
+          
+          <div class="pt-3 border-t border-slate-700/50 flex items-center justify-between">
+            <span class="text-[10px] text-slate-500">${new Date(link.timestamp).toLocaleDateString('pt-BR')}</span>
+            
+            <!-- APENAS O BOTÃO DE COPIAR -->
+            <button onclick="copyLinkToClipboard('${escapeHtml(link.url)}')" class="w-full py-2 bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 hover:text-indigo-200 border border-indigo-500/30 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-2">
+              <i class="fa-regular fa-copy"></i> Copiar Link
+            </button>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    // UTILITÁRIOS
+    function showToast(message, type = "success") {
+      const toast = document.getElementById('toast-notification');
+      const icon = document.getElementById('toast-icon');
+      const msg = document.getElementById('toast-message');
+
+      msg.innerText = message;
+      if (type === 'error') {
+        icon.className = "fa-solid fa-triangle-exclamation text-red-400";
+      } else {
+        icon.className = "fa-solid fa-circle-check text-emerald-400";
+      }
+
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3500);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/[&<>"']/g, function(m) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+      });
+    }
+  </script>
+</body>
+</html>
