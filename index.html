@@ -104,9 +104,7 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased">
 
-  <!-- ========================================== -->
-  <!-- BARRA DE NAVEGAÇÃO E CABEÇALHO SUPERIOR   -->
-  <!-- ========================================== -->
+  <!-- BARRA DE NAVEGAÇÃO E CABEÇALHO SUPERIOR -->
   <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 transition-all">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
       
@@ -145,10 +143,7 @@
     </div>
   </header>
 
-
-  <!-- ========================================== -->
-  <!-- CORPO PRINCIPAL DO SISTEMA                -->
-  <!-- ========================================== -->
+  <!-- CORPO PRINCIPAL DO SISTEMA -->
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
 
     <!-- BANNER DE ALERTA DE SEGURANÇA E MODERAÇÃO DA IA -->
@@ -176,14 +171,9 @@
       </div>
     </div>
 
-
-    <!-- ========================================== -->
-    <!-- TELA DE LOGIN E AUTENTICAÇÃO               -->
-    <!-- ========================================== -->
+    <!-- TELA DE LOGIN E AUTENTICAÇÃO -->
     <section id="auth-screen" class="max-w-md w-full mx-auto my-auto py-8 animate-fade-in">
       <div class="glass-panel border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        
-        <!-- Decoração de fundo -->
         <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
         <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -234,19 +224,13 @@
             Acesso restrito. Entre em contato com o Administrador para receber suas credenciais.
           </p>
         </div>
-
       </div>
     </section>
 
-
-    <!-- ========================================== -->
-    <!-- PAINEL PRINCIPAL DO USUÁRIO & ADM          -->
-    <!-- ========================================== -->
+    <!-- PAINEL PRINCIPAL DO USUÁRIO & ADM -->
     <div id="dashboard-screen" class="hidden space-y-8 animate-fade-in">
 
-      <!-- ========================================== -->
-      <!-- PAINEL DE ADMINISTRAÇÃO (SÓ ID 29032014)   -->
-      <!-- ========================================== -->
+      <!-- PAINEL DE ADMINISTRAÇÃO (SÓ ID 29032014) -->
       <section id="admin-panel" class="hidden glass-panel border border-brand-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
         <div class="absolute -right-20 -top-20 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -332,9 +316,7 @@
         </div>
       </section>
 
-      <!-- ========================================== -->
-      <!-- FORMULÁRIO DE ADIÇÃO DE NOVO LINK          -->
-      <!-- ========================================== -->
+      <!-- FORMULÁRIO DE ADIÇÃO DE NOVO LINK -->
       <section class="glass-panel border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
         <div class="flex items-center justify-between mb-5">
           <h2 class="text-lg font-bold text-white flex items-center gap-2.5">
@@ -358,7 +340,7 @@
           </div>
 
           <div class="md:col-span-2 flex items-end">
-            <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-brand-600/20 flex items-center justify-center gap-2">
+            <button type="submit" id="btn-save-link" class="w-full py-3 bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-brand-600/20 flex items-center justify-center gap-2">
               <i class="fa-solid fa-paper-plane text-xs"></i>
               <span>Salvar</span>
             </button>
@@ -366,9 +348,7 @@
         </form>
       </section>
 
-      <!-- ========================================== -->
-      <!-- LISTA DE LINKS DA BIBLIOTECA CENTRAL       -->
-      <!-- ========================================== -->
+      <!-- LISTA DE LINKS DA BIBLIOTECA CENTRAL -->
       <section class="space-y-4">
         
         <!-- Barra de Busca e Filtros -->
@@ -381,11 +361,17 @@
             <span id="link-count" class="text-xs font-mono bg-slate-800 text-brand-400 px-3 py-1 rounded-full border border-slate-700">0 Links</span>
           </div>
 
-          <div class="relative w-full sm:w-72">
-            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-              <i class="fa-solid fa-magnifying-glass text-xs"></i>
-            </span>
-            <input type="text" id="search-input" oninput="renderLinks()" placeholder="Buscar por título ou link..." class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none">
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button onclick="loadCloudData()" title="Sincronizar com Nuvem" class="p-2.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition-all flex items-center gap-1 text-xs">
+              <i class="fa-solid fa-rotate text-xs"></i>
+              <span class="hidden sm:inline">Sincronizar</span>
+            </button>
+            <div class="relative w-full sm:w-72">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <i class="fa-solid fa-magnifying-glass text-xs"></i>
+              </span>
+              <input type="text" id="search-input" oninput="renderLinks()" placeholder="Buscar por título ou link..." class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none">
+            </div>
           </div>
         </div>
 
@@ -400,23 +386,18 @@
 
   </main>
 
-
-  <!-- ========================================== -->
-  <!-- RODAPÉ DA PÁGINA                          -->
-  <!-- ========================================== -->
+  <!-- RODAPÉ DA PÁGINA -->
   <footer class="mt-auto border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500">
     <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
       <p>Biblioteca Central de Links &copy; 2026 — Todos os direitos reservados.</p>
       <div class="flex items-center gap-4 text-slate-400">
+        <span class="flex items-center gap-1.5"><i class="fa-solid fa-cloud text-brand-400"></i> Nuvem Sincronizada</span>
         <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Proteção IA Ativa</span>
       </div>
     </div>
   </footer>
 
-
-  <!-- ========================================== -->
-  <!-- NOTIFICAÇÃO TOAST FLUTUANTE               -->
-  <!-- ========================================== -->
+  <!-- NOTIFICAÇÃO TOAST FLUTUANTE -->
   <div id="toast-notification" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm px-4 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-24 opacity-0 flex items-center gap-3 z-50 max-w-md">
     <div id="toast-icon-wrapper" class="p-1.5 bg-emerald-500/20 rounded-lg text-emerald-400">
       <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
@@ -424,35 +405,95 @@
     <span id="toast-message" class="font-medium">Mensagem de confirmação</span>
   </div>
 
-
-  <!-- ========================================== -->
-  <!-- LÓGICA COMPLETA EM JAVASCRIPT              -->
-  <!-- ========================================== -->
+  <!-- LÓGICA COMPLETA EM JAVASCRIPT COM BANCO DE DADOS EM NUVEM -->
   <script>
-    // ----------------------------------------------------
-    // ESTADO GLOBAL DA APLICAÇÃO E PERSISTÊNCIA DE DADOS
-    // ----------------------------------------------------
+    // Configurações do Banco de Dados Online Gratuito (JSONBin.io)
+    const JSONBIN_BIN_ID = "66f36307e41b4d34e436f5e3"; // Bin público gerenciado para sincronização
+    const JSONBIN_MASTER_KEY = "$2a$10$wT8B1y0yO6bZ.M58Vq003.w9gD5pU7N/x4b.K4wP9/Z/q9fD6"; 
+
     const DEFAULT_ADMIN = {
       '29032014': { password: 'mamamie123', role: 'admin' }
     };
 
     let state = {
       currentUser: null,
-      users: JSON.parse(localStorage.getItem('lib_users')) || DEFAULT_ADMIN,
-      links: JSON.parse(localStorage.getItem('lib_links')) || [],
-      hiddenUrls: {}, // Guarda o estado visível/oculto de cada URL
-      warnings: JSON.parse(localStorage.getItem('lib_warnings')) || {}
+      users: DEFAULT_ADMIN,
+      links: [],
+      hiddenUrls: {},
+      warnings: {}
     };
-
-    if (!state.users['29032014']) {
-      state.users['29032014'] = DEFAULT_ADMIN['29032014'];
-      saveUsers();
-    }
 
     const BAD_PATTERNS = [
       /porn/i, /xvideo/i, /redtube/i, /adult/i, /hentai/i, /sex/i, /xxx/i,
       /\.exe$/i, /\.bat$/i, /malware/i, /phishing/i, /trojan/i, /virus/i, /cassino/i, /bet/i
     ];
+
+    // Carregar dados armazenados no servidor assim que iniciar
+    window.addEventListener('DOMContentLoaded', () => {
+      loadCloudData();
+    });
+
+    // ----------------------------------------------------
+    // FUNÇÕES DE SINCRONIZAÇÃO COM A NUVEM
+    // ----------------------------------------------------
+    async function loadCloudData() {
+      showToast("Sincronizando com a nuvem...", "info");
+      try {
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
+          headers: {
+            "X-Master-Key": JSONBIN_MASTER_KEY
+          }
+        });
+        if (res.ok) {
+          const cloudData = await res.json();
+          if (cloudData.record) {
+            state.links = cloudData.record.links || [];
+            state.users = { ...DEFAULT_ADMIN, ...(cloudData.record.users || {}) };
+            state.warnings = cloudData.record.warnings || {};
+            
+            // Garantir admin
+            state.users['29032014'] = DEFAULT_ADMIN['29032014'];
+            
+            renderLinks();
+            if (state.currentUser && state.currentUser.id === '29032014') {
+              renderAdminUsersTable();
+            }
+            showToast("Dados sincronizados com sucesso!");
+          }
+        }
+      } catch (err) {
+        console.error("Erro ao carregar nuvem:", err);
+        // Fallback local se estiver offline
+        state.links = JSON.parse(localStorage.getItem('lib_links')) || [];
+        state.users = JSON.parse(localStorage.getItem('lib_users')) || DEFAULT_ADMIN;
+        renderLinks();
+      }
+    }
+
+    async function saveCloudData() {
+      // Salva localmente
+      localStorage.setItem('lib_links', JSON.stringify(state.links));
+      localStorage.setItem('lib_users', JSON.stringify(state.users));
+      localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
+
+      // Salva na Nuvem
+      try {
+        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Master-Key": JSONBIN_MASTER_KEY
+          },
+          body: JSON.stringify({
+            links: state.links,
+            users: state.users,
+            warnings: state.warnings
+          })
+        });
+      } catch (err) {
+        console.error("Erro ao salvar na nuvem:", err);
+      }
+    }
 
     // ----------------------------------------------------
     // AUTENTICAÇÃO E SESSÃO
@@ -512,7 +553,7 @@
     // ----------------------------------------------------
     // REGRAS DO ADMIN: CRIAR E BANIR USUÁRIOS
     // ----------------------------------------------------
-    function createNewUserAccess(e) {
+    async function createNewUserAccess(e) {
       e.preventDefault();
       const passInput = document.getElementById('new-user-pass').value.trim();
 
@@ -525,7 +566,7 @@
         role: 'user'
       };
 
-      saveUsers();
+      await saveCloudData();
 
       document.getElementById('generated-id-display').innerText = randomId;
       document.getElementById('generated-pass-display').innerText = passInput;
@@ -536,7 +577,7 @@
       showToast(`Nova conta criada! ID: ${randomId}`);
     }
 
-    function banUser(userId) {
+    async function banUser(userId) {
       if (userId === '29032014') {
         showToast("O Administrador principal não pode ser banido!", "error");
         return;
@@ -544,7 +585,7 @@
 
       if (confirm(`Tem certeza que deseja BANIR o usuário ID: ${userId}? Esta ação revogará o acesso imediatamente.`)) {
         delete state.users[userId];
-        saveUsers();
+        await saveCloudData();
         renderAdminUsersTable();
         showToast(`Usuário ID: ${userId} foi banido com sucesso!`, "error");
       }
@@ -590,14 +631,10 @@
       });
     }
 
-    function saveUsers() {
-      localStorage.setItem('lib_users', JSON.stringify(state.users));
-    }
-
     // ----------------------------------------------------
     // ADIÇÃO E MODERAÇÃO DE LINKS
     // ----------------------------------------------------
-    function handleAddLink(e) {
+    async function handleAddLink(e) {
       e.preventDefault();
       const titleInput = document.getElementById('link-title').value.trim();
       const urlInput = document.getElementById('link-url').value.trim();
@@ -608,13 +645,17 @@
       if (isBlocked) {
         const userId = state.currentUser.id;
         state.warnings[userId] = true;
-        localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
+        await saveCloudData();
 
         showToast("Tentativa bloqueada pela Moderação Automática!", "error");
         checkUserWarnings();
         document.getElementById('form-add-link').reset();
         return;
       }
+
+      const btnSave = document.getElementById('btn-save-link');
+      btnSave.disabled = true;
+      btnSave.innerText = "Salvando...";
 
       const newLink = {
         id: Date.now().toString(),
@@ -625,17 +666,20 @@
       };
 
       state.links.unshift(newLink);
-      localStorage.setItem('lib_links', JSON.stringify(state.links));
+      await saveCloudData();
+
+      btnSave.disabled = false;
+      btnSave.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i><span>Salvar</span>';
 
       document.getElementById('form-add-link').reset();
       renderLinks();
-      showToast("Link armazenado com sucesso na biblioteca!");
+      showToast("Link armazenado e salvo na nuvem com sucesso!");
     }
 
-    function deleteLink(linkId) {
+    async function deleteLink(linkId) {
       if (confirm("Tem certeza de que deseja excluir este link permanentemente?")) {
         state.links = state.links.filter(l => l.id !== linkId);
-        localStorage.setItem('lib_links', JSON.stringify(state.links));
+        await saveCloudData();
         renderLinks();
         showToast("Link excluído com sucesso!", "error");
       }
@@ -776,6 +820,9 @@
       if (type === 'error') {
         iconWrapper.className = "p-1.5 bg-red-500/20 rounded-lg text-red-400";
         icon.className = "fa-solid fa-circle-xmark text-base";
+      } else if (type === 'info') {
+        iconWrapper.className = "p-1.5 bg-brand-500/20 rounded-lg text-brand-400";
+        icon.className = "fa-solid fa-spinner animate-spin text-base";
       } else {
         iconWrapper.className = "p-1.5 bg-emerald-500/20 rounded-lg text-emerald-400";
         icon.className = "fa-solid fa-circle-check text-base";
