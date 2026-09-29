@@ -405,22 +405,27 @@
     <span id="toast-message" class="font-medium">Mensagem de confirmação</span>
   </div>
 
-  <!-- LÓGICA COMPLETA EM JAVASCRIPT COM BANCO DE DADOS EM NUVEM -->
+  <!-- LÓGICA COMPLETA EM JAVASCRIPT COM FIX DE PERSISTÊNCIA -->
   <script>
     // Configurações do Banco de Dados Online Gratuito (JSONBin.io)
-    const JSONBIN_BIN_ID = "66f36307e41b4d34e436f5e3"; // Bin público gerenciado para sincronização
+    const JSONBIN_BIN_ID = "66f36307e41b4d34e436f5e3"; 
     const JSONBIN_MASTER_KEY = "$2a$10$wT8B1y0yO6bZ.M58Vq003.w9gD5pU7N/x4b.K4wP9/Z/q9fD6"; 
 
     const DEFAULT_ADMIN = {
       '29032014': { password: 'mamamie123', role: 'admin' }
     };
 
+    // Inicialização do estado garantindo o carregamento do localStorage
+    let savedUsers = JSON.parse(localStorage.getItem('lib_users')) || DEFAULT_ADMIN;
+    let savedLinks = JSON.parse(localStorage.getItem('lib_links')) || [];
+    let savedWarnings = JSON.parse(localStorage.getItem('lib_warnings')) || {};
+
     let state = {
       currentUser: null,
-      users: DEFAULT_ADMIN,
-      links: [],
+      users: { ...DEFAULT_ADMIN, ...savedUsers },
+      links: savedLinks,
       hiddenUrls: {},
-      warnings: {}
+      warnings: savedWarnings
     };
 
     const BAD_PATTERNS = [
@@ -434,7 +439,7 @@
     });
 
     // ----------------------------------------------------
-    // FUNÇÕES DE SINCRONIZAÇÃO COM A NUVEM
+    // FUNÇÕES DE SINCRONIZAÇÃO COM A NUVEM E LOCALSTORAGE
     // ----------------------------------------------------
     async function loadCloudData() {
       showToast("Sincronizando com a nuvem...", "info");
@@ -447,12 +452,19 @@
         if (res.ok) {
           const cloudData = await res.json();
           if (cloudData.record) {
-            state.links = cloudData.record.links || [];
-            state.users = { ...DEFAULT_ADMIN, ...(cloudData.record.users || {}) };
-            state.warnings = cloudData.record.warnings || {};
-            
-            // Garantir admin
-            state.users['29032014'] = DEFAULT_ADMIN['29032014'];
+            const cloudUsers = cloudData.record.users || {};
+            const cloudLinks = cloudData.record.links || [];
+            const cloudWarnings = cloudData.record.warnings || {};
+
+            // Mesclar dados sem apagar os existentes
+            state.users = { ...DEFAULT_ADMIN, ...state.users, ...cloudUsers };
+            state.links = cloudLinks.length > 0 ? cloudLinks : state.links;
+            state.warnings = { ...state.warnings, ...cloudWarnings };
+
+            // Salvar a mesclagem localmente
+            localStorage.setItem('lib_users', JSON.stringify(state.users));
+            localStorage.setItem('lib_links', JSON.stringify(state.links));
+            localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
             
             renderLinks();
             if (state.currentUser && state.currentUser.id === '29032014') {
@@ -463,15 +475,15 @@
         }
       } catch (err) {
         console.error("Erro ao carregar nuvem:", err);
-        // Fallback local se estiver offline
-        state.links = JSON.parse(localStorage.getItem('lib_links')) || [];
-        state.users = JSON.parse(localStorage.getItem('lib_users')) || DEFAULT_ADMIN;
+        // Fallback para armazenamento local em caso de instabilidade
+        state.links = JSON.parse(localStorage.getItem('lib_links')) || state.links;
+        state.users = JSON.parse(localStorage.getItem('lib_users')) || state.users;
         renderLinks();
       }
     }
 
     async function saveCloudData() {
-      // Salva localmente
+      // Salva no armazenamento local primeiro para evitar perdas
       localStorage.setItem('lib_links', JSON.stringify(state.links));
       localStorage.setItem('lib_users', JSON.stringify(state.users));
       localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
