@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Central de Links - Sistema de Gestão e Moderação</title>
-
+  <title>Sistema Central de Gestão de Links & Recursos - Enterprise</title>
+  
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -14,7 +14,7 @@
         extend: {
           colors: {
             brand: {
-              50: '#eef2ff',
+              50: '#f0f3ff',
               100: '#e0e7ff',
               200: '#c7d2fe',
               300: '#a5b4fc',
@@ -25,30 +25,12 @@
               800: '#3730a3',
               900: '#312e81',
               950: '#1e1b4b',
-            }
-          },
-          animation: {
-            'fade-in': 'fadeIn 0.3s ease-out forwards',
-            'slide-down': 'slideDown 0.4s ease-out forwards',
-            'bounce-short': 'bounceShort 0.5s ease-in-out 2',
-            'pulse-subtle': 'pulseSubtle 2s infinite'
-          },
-          keyframes: {
-            fadeIn: {
-              '0%': { opacity: '0', transform: 'scale(0.98)' },
-              '100%': { opacity: '1', transform: 'scale(1)' }
             },
-            slideDown: {
-              '0%': { opacity: '0', transform: 'translateY(-20px)' },
-              '100%': { opacity: '1', transform: 'translateY(0)' }
-            },
-            bounceShort: {
-              '0%, 100%': { transform: 'translateY(0)' },
-              '50%': { transform: 'translateY(-5px)' }
-            },
-            pulseSubtle: {
-              '0%, 100%': { opacity: '1' },
-              '50%': { opacity: '0.85' }
+            surface: {
+              800: '#1e293b',
+              850: '#172133',
+              900: '#0f172a',
+              950: '#020617'
             }
           }
         }
@@ -56,329 +38,281 @@
     }
   </script>
 
-  <!-- Font Awesome Icons -->
+  <!-- Dependências e Fontes -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
+    body { font-family: 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #020617; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
     
-    /* Custom Scrollbar */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f172a;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #334155;
-      border-radius: 4px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
-    }
-
     .glass-panel {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
-
     .glass-card {
-      background: rgba(30, 41, 59, 0.5);
+      background: rgba(30, 41, 59, 0.4);
       backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .glass-card:hover {
+      background: rgba(30, 41, 59, 0.7);
       border-color: rgba(99, 102, 241, 0.4);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(99, 102, 241, 0.1);
+      transform: translateY(-2px);
+    }
+    .custom-gradient {
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
     }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col selection:bg-brand-500 selection:text-white antialiased">
+<body class="bg-surface-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-  <!-- BARRA DE NAVEGAÇÃO E CABEÇALHO SUPERIOR -->
-  <header class="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 sticky top-0 z-40 transition-all">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex justify-between items-center">
+  <!-- BARRA DE NAVEGAÇÃO SUPERIOR -->
+  <header class="bg-surface-900/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       
-      <!-- Logo e Título -->
+      <!-- LOGO E STATUS -->
       <div class="flex items-center space-x-3.5">
-        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-brand-500/25 ring-1 ring-white/20">
-          <i class="fa-solid fa-bookmark text-xl"></i>
+        <div class="w-10 h-10 rounded-xl custom-gradient flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
+          <i class="fa-solid fa-layer-group text-lg"></i>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-xl font-bold tracking-tight text-white leading-none">Biblioteca Central</h1>
-            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">v3.0 MAX</span>
+            <h1 class="text-base font-bold tracking-tight text-white">Central Hub</h1>
+            <span class="text-[10px] font-extrabold uppercase bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full tracking-wider">
+              Enterprise v4.2
+            </span>
           </div>
-          <p class="text-xs text-slate-400 mt-1">Guarde, organize e gerencie seu repositório de links</p>
+          <p class="text-[11px] text-slate-400">Gestão Global de Links & Ativos Digitais</p>
         </div>
       </div>
 
-      <!-- Informações do Usuário Conectado -->
-      <div id="header-user-info" class="hidden flex items-center space-x-4">
-        <div class="hidden sm:block text-right">
-          <p class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Conta Conectada</p>
-          <div class="flex items-center justify-end gap-1.5">
-            <span id="user-role-badge" class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
-            <p id="user-display-id" class="text-sm font-bold text-slate-200 font-mono">ID: ----</p>
-          </div>
+      <!-- BUSCA RÁPIDA GLOBAL E USUÁRIO -->
+      <div id="header-controls" class="hidden flex items-center gap-4">
+        <div class="relative hidden lg:block">
+          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+          <input type="text" id="global-search" oninput="handleGlobalSearch(event)" placeholder="Filtrar links rapidamente..." class="bg-surface-950 border border-slate-800 rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-200 outline-none focus:border-brand-500 w-64 transition-all">
         </div>
 
-        <div class="h-8 w-px bg-slate-800 hidden sm:block"></div>
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/50 border border-slate-700/50">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="text-xs font-mono font-medium text-slate-300">Sincronizado</span>
+        </div>
 
-        <button id="btn-logout" onclick="logout()" class="px-3.5 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition-all flex items-center gap-2 shadow-sm">
-          <i class="fa-solid fa-right-from-bracket text-slate-400"></i>
-          <span>Sair</span>
+        <div class="text-right">
+          <p class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Sessão Ativa</p>
+          <p id="user-display-id" class="text-xs font-bold text-brand-300 font-mono">ID: ----</p>
+        </div>
+
+        <button onclick="logout()" class="p-2 text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/30 transition-all" title="Sair do Sistema">
+          <i class="fa-solid fa-power-off"></i>
         </button>
       </div>
 
     </div>
   </header>
 
-  <!-- CORPO PRINCIPAL DO SISTEMA -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col gap-6">
+  <!-- CONTAINER PRINCIPAL -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-    <!-- BANNER DE ALERTA DE SEGURANÇA E MODERAÇÃO DA IA -->
-    <div id="security-warning-banner" class="hidden animate-slide-down bg-gradient-to-r from-red-950/90 via-slate-900 to-red-950/90 border border-red-500/40 p-4 sm:p-5 rounded-2xl shadow-2xl relative overflow-hidden">
-      <div class="absolute -right-10 -top-10 w-40 h-40 bg-red-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      
-      <div class="flex items-start sm:items-center gap-4 relative z-10">
-        <div class="p-3 bg-red-500/20 border border-red-500/30 text-red-400 rounded-xl shrink-0">
-          <i class="fa-solid fa-triangle-exclamation text-2xl"></i>
-        </div>
-        
-        <div class="flex-grow">
-          <div class="flex items-center gap-2">
-            <h3 class="font-bold text-red-300 text-base">Alerta do Sistema de Moderação Automática</h3>
-            <span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded font-mono border border-red-500/30">IA Security Shield</span>
-          </div>
-          <p id="warning-message-text" class="text-xs sm:text-sm text-red-200/80 mt-1">
-            Sua conta possui um registro de tentativa de envio de link potencialmente malicioso, nocivo ou impróprio. O conteúdo foi bloqueado.
-          </p>
-        </div>
-
-        <button onclick="dismissWarning()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition-colors">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-    </div>
-
-    <!-- TELA DE LOGIN E AUTENTICAÇÃO -->
-    <section id="auth-screen" class="max-w-md w-full mx-auto my-auto py-8 animate-fade-in">
-      <div class="glass-panel border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div class="absolute -top-24 -right-24 w-48 h-48 bg-brand-500/15 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-500/15 rounded-full blur-3xl pointer-events-none"></div>
-
+    <!-- TELA DE AUTENTICAÇÃO -->
+    <section id="auth-screen" class="max-w-md w-full mx-auto my-12">
+      <div class="glass-panel rounded-3xl p-8 shadow-2xl border border-slate-800 relative overflow-hidden">
+        <div class="absolute -right-12 -top-12 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
         <div class="text-center mb-8 relative z-10">
-          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-600/20 border border-brand-500/30 text-brand-400 mb-4 shadow-inner">
-            <i class="fa-solid fa-lock text-2xl"></i>
+          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-600/20 text-brand-400 border border-brand-500/30 mb-4 shadow-inner">
+            <i class="fa-solid fa-user-shield text-2xl"></i>
           </div>
-          <h2 class="text-2xl font-bold text-white tracking-tight">Acesso ao Repositório</h2>
-          <p class="text-xs sm:text-sm text-slate-400 mt-1">Digite suas credenciais fornecidas pelo administrador</p>
+          <h2 class="text-2xl font-black text-white tracking-tight">Portal de Acesso</h2>
+          <p class="text-xs text-slate-400 mt-1.5">Insira seu ID e Senha corporativa para sincronizar os dados</p>
         </div>
 
-        <!-- Mensagem de Erro de Login -->
-        <div id="auth-error" class="hidden mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-xs text-red-300 flex items-start gap-3 animate-fade-in">
-          <i class="fa-solid fa-circle-exclamation text-red-400 text-base shrink-0 mt-0.5"></i>
-          <span id="auth-error-text">ID de acesso ou senha incorretos.</span>
-        </div>
-
-        <!-- Formulário de Login -->
-        <form id="form-login" onsubmit="handleLogin(event)" class="space-y-5 relative z-10">
+        <form onsubmit="handleLogin(event)" class="space-y-4 relative z-10">
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">ID de Usuário</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">ID de Usuário</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                <i class="fa-solid fa-id-card"></i>
-              </span>
-              <input type="text" id="login-id" required placeholder="Ex: 29032014" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl pl-10 pr-4 py-3 text-slate-100 placeholder-slate-600 text-sm transition-all outline-none">
+              <i class="fa-solid fa-id-badge absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+              <input type="text" id="login-id" required placeholder="Ex: 29032014" class="w-full bg-surface-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 outline-none focus:border-brand-500 transition-all font-mono">
             </div>
           </div>
-
           <div>
-            <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Senha de Acesso</label>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Chave de Acesso</label>
             <div class="relative">
-              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500">
-                <i class="fa-solid fa-key"></i>
-              </span>
-              <input type="password" id="login-password" required placeholder="••••••••" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl pl-10 pr-4 py-3 text-slate-100 placeholder-slate-600 text-sm transition-all outline-none">
+              <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
+              <input type="password" id="login-pass" required placeholder="••••••••" class="w-full bg-surface-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 outline-none focus:border-brand-500 transition-all font-mono">
             </div>
           </div>
-
-          <button type="submit" class="w-full py-3.5 bg-gradient-to-r from-brand-600 via-indigo-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 active:from-brand-700 text-white font-semibold rounded-xl text-sm transition-all shadow-lg shadow-brand-600/30 flex items-center justify-center gap-2 group">
-            <span>Autenticar no Sistema</span>
-            <i class="fa-solid fa-arrow-right text-xs group-hover:translate-x-1 transition-transform"></i>
+          <button type="submit" class="w-full py-3.5 custom-gradient text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-brand-600/25 hover:opacity-95">
+            Autenticar e Entrar
           </button>
         </form>
-
-        <div class="mt-8 pt-6 border-t border-slate-800/80 text-center">
-          <p class="text-[11px] text-slate-500">
-            Acesso restrito. Entre em contato com o Administrador para receber suas credenciais.
-          </p>
-        </div>
       </div>
     </section>
 
-    <!-- PAINEL PRINCIPAL DO USUÁRIO & ADM -->
-    <div id="dashboard-screen" class="hidden space-y-8 animate-fade-in">
+    <!-- PAINEL DASHBOARD COMPLETO -->
+    <div id="dashboard-screen" class="hidden space-y-8">
 
-      <!-- PAINEL DE ADMINISTRAÇÃO (SÓ ID 29032014) -->
-      <section id="admin-panel" class="hidden glass-panel border border-brand-500/30 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-        <div class="absolute -right-20 -top-20 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl pointer-events-none"></div>
-
-        <div class="flex flex-col md:flex-row md:items-center justify-between pb-6 mb-6 border-b border-slate-800/80 gap-4">
+      <!-- BANNER DE BOAS VINDAS E MÉTRICAS GERAIS -->
+      <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
           <div>
-            <div class="flex items-center gap-2 text-brand-400 font-bold text-xs uppercase tracking-wider mb-1">
-              <i class="fa-solid fa-shield-halved"></i>
-              <span>Sua Função: Administrador Principal</span>
-            </div>
-            <h3 class="text-xl font-bold text-white">Painel de Gestão de Acessos</h3>
-            <p class="text-xs text-slate-400 mt-0.5">Cadastre novos usuários definindo senhas ou remova o acesso (banir)</p>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total no Banco</p>
+            <p id="kpi-total" class="text-3xl font-black text-white mt-1">0</p>
+            <p class="text-[11px] text-emerald-400 mt-1"><i class="fa-solid fa-arrow-up text-[10px]"></i> Ativos na Nuvem</p>
           </div>
-
-          <div class="flex items-center gap-3">
-            <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl border border-slate-700 font-mono">
-              Total de Contas: <strong id="admin-user-count" class="text-brand-400">0</strong>
-            </span>
+          <div class="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 text-xl">
+            <i class="fa-solid fa-database"></i>
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          
-          <!-- Formulário para Criar Novo Usuário -->
-          <div class="lg:col-span-5 bg-slate-900/80 border border-slate-800 p-5 sm:p-6 rounded-2xl flex flex-col justify-between">
-            <div>
-              <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2 mb-2">
-                <i class="fa-solid fa-user-plus text-brand-400"></i> Criar Acesso para Novo Usuário
-              </h4>
-              <p class="text-xs text-slate-400 mb-5 leading-relaxed">
-                Digite a senha desejada abaixo. O sistema atribuirá um **ID Aleatório exclusivo** de 8 dígitos para o usuário utilizar junto com essa senha.
-              </p>
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Categorias</p>
+            <p id="kpi-categories" class="text-3xl font-black text-white mt-1">0</p>
+            <p class="text-[11px] text-indigo-400 mt-1"><i class="fa-solid fa-tags text-[10px]"></i> Categorizados</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">
+            <i class="fa-solid fa-folder-tree"></i>
+          </div>
+        </div>
 
-              <form id="form-create-user" onsubmit="createNewUserAccess(event)" class="space-y-4">
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Seus Links</p>
+            <p id="kpi-mine" class="text-3xl font-black text-white mt-1">0</p>
+            <p class="text-[11px] text-purple-400 mt-1"><i class="fa-solid fa-user text-[10px]"></i> Cadastrados por você</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
+            <i class="fa-solid fa-user-check"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+          <div>
+            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Última Checagem</p>
+            <p id="kpi-last-check" class="text-base font-bold text-slate-200 font-mono mt-2">--:--:--</p>
+            <p class="text-[11px] text-slate-500 mt-1"><i class="fa-solid fa-rotate text-[10px]"></i> Polling a cada 5s</p>
+          </div>
+          <div class="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 text-xl">
+            <i class="fa-solid fa-clock-rotate-left"></i>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- PAINEL DE ADIÇÃO E GRÁFICOS -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- FORMULÁRIO DE ADIÇÃO AVANÇADO (7 COLS) -->
+        <section class="lg:col-span-7 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-6">
+              <div>
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                  <i class="fa-solid fa-plus-circle text-brand-400"></i> Cadastrar Novo Recurso
+                </h3>
+                <p class="text-xs text-slate-400 mt-1">Preencha os metadados para sincronizar o link na nuvem</p>
+              </div>
+              <span class="text-[10px] bg-brand-500/10 text-brand-300 border border-brand-500/20 px-2.5 py-1 rounded-lg font-mono">
+                Auto-Sync
+              </span>
+            </div>
+
+            <form id="add-resource-form" onsubmit="handleAddLink(event)" class="space-y-4">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1.5">Definir Senha do Usuário</label>
-                  <input type="text" id="new-user-pass" required placeholder="Ex: mamamie123" class="w-full bg-slate-950 border border-slate-800 focus:border-brand-500 rounded-xl px-3.5 py-2.5 text-slate-100 text-xs transition-all outline-none">
+                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Título do Link</label>
+                  <input type="text" id="input-title" required placeholder="Ex: Documentação Tailwind" class="w-full bg-surface-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-all">
                 </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Categoria</label>
+                  <select id="input-category" class="w-full bg-surface-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-brand-500 transition-all">
+                    <option value="Geral">📂 Geral</option>
+                    <option value="Estudos">📚 Estudos</option>
+                    <option value="Trabalho">💼 Trabalho</option>
+                    <option value="Ferramentas">🛠️ Ferramentas</option>
+                    <option value="Entretenimento">🎮 Entretenimento</option>
+                  </select>
+                </div>
+              </div>
 
-                <button type="submit" class="w-full py-3 bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold rounded-xl text-xs transition-all shadow-md shadow-brand-600/20 flex items-center justify-center gap-2">
-                  <i class="fa-solid fa-key"></i>
-                  <span>Gerar ID e Salvar Conta</span>
+              <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">URL Completa</label>
+                <div class="relative">
+                  <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                  <input type="url" id="input-url" required placeholder="https://exemplo.com/recurso" class="w-full bg-surface-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-all font-mono">
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição Breve (Opcional)</label>
+                <input type="text" id="input-description" placeholder="Resumo do que se trata este site..." class="w-full bg-surface-950 border border-slate-800 rounded-xl px-4 py-2 text-xs outline-none focus:border-brand-500 transition-all">
+              </div>
+
+              <div class="pt-2 flex justify-end">
+                <button type="submit" class="px-6 py-3 custom-gradient text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-brand-500/20 hover:opacity-90 transition-all">
+                  <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Salvar na Nuvem
                 </button>
-              </form>
-            </div>
-
-            <!-- Caixa de Alerta com os Dados Gerados -->
-            <div id="new-user-created-box" class="hidden mt-4 p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl text-xs animate-fade-in">
-              <div class="flex items-center gap-2 text-emerald-400 font-bold mb-1">
-                <i class="fa-solid fa-circle-check"></i>
-                <span>Conta Criada com Sucesso!</span>
               </div>
-              <p class="text-[11px] text-emerald-200/80 mb-2">Passe as credenciais abaixo para o usuário:</p>
-              <div class="bg-slate-950/80 p-3 rounded-lg border border-slate-800 font-mono space-y-1">
-                <div class="text-slate-300">ID de Acesso: <span id="generated-id-display" class="font-bold text-emerald-400">------</span></div>
-                <div class="text-slate-300">Senha: <span id="generated-pass-display" class="font-bold text-emerald-400">------</span></div>
-              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- GRÁFICO E DISTRIBUIÇÃO VISUAL (5 COLS) -->
+        <section class="lg:col-span-5 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
+          <div>
+            <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
+              <i class="fa-solid fa-chart-pie text-brand-400"></i> Distribuição do Acervo
+            </h3>
+            <p class="text-xs text-slate-400 mb-4">Proporção dos links cadastrados por categoria</p>
+            
+            <div class="h-44 w-full flex items-center justify-center">
+              <canvas id="categoryChart"></canvas>
             </div>
           </div>
-
-          <!-- Tabela de Usuários Cadastrados / Botão Banir -->
-          <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 p-5 sm:p-6 rounded-2xl flex flex-col">
-            <h4 class="text-sm font-bold text-slate-200 flex items-center gap-2 mb-4">
-              <i class="fa-solid fa-users text-purple-400"></i> Usuários com Acesso Ativo
-            </h4>
-
-            <div class="flex-grow overflow-x-auto">
-              <table class="w-full text-left text-xs text-slate-300">
-                <thead class="text-[10px] uppercase bg-slate-950/60 text-slate-400 border-b border-slate-800">
-                  <tr>
-                    <th class="py-2.5 px-3">ID de Usuário</th>
-                    <th class="py-2.5 px-3">Senha Definida</th>
-                    <th class="py-2.5 px-3">Status / Função</th>
-                    <th class="py-2.5 px-3 text-right">Ação</th>
-                  </tr>
-                </thead>
-                <tbody id="users-table-body" class="divide-y divide-slate-800/60 font-mono">
-                  <!-- Linhas preenchidas via JavaScript -->
-                </tbody>
-              </table>
-            </div>
+          <div class="mt-4 pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 text-center">
+            Gráfico gerado em tempo real com dados sincronizados.
           </div>
+        </section>
 
-        </div>
-      </section>
+      </div>
 
-      <!-- FORMULÁRIO DE ADIÇÃO DE NOVO LINK -->
-      <section class="glass-panel border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl">
-        <div class="flex items-center justify-between mb-5">
-          <h2 class="text-lg font-bold text-white flex items-center gap-2.5">
-            <span class="w-8 h-8 rounded-lg bg-brand-500/20 text-brand-400 flex items-center justify-center text-sm border border-brand-500/30">
-              <i class="fa-solid fa-plus"></i>
-            </span>
-            <span>Adicionar Novo Link à Biblioteca</span>
-          </h2>
-          <span class="text-[11px] text-slate-400">Verificação automática ativada</span>
-        </div>
-
-        <form id="form-add-link" onsubmit="handleAddLink(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4">
-          <div class="md:col-span-5">
-            <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Título / Descrição do Link</label>
-            <input type="text" id="link-title" required placeholder="Ex: Meu site favorito" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm outline-none transition-all">
-          </div>
-
-          <div class="md:col-span-5">
-            <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">URL Completa (https://...)</label>
-            <input type="url" id="link-url" required placeholder="https://exemplo.com" class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl px-4 py-3 text-slate-100 placeholder-slate-600 text-sm outline-none transition-all">
-          </div>
-
-          <div class="md:col-span-2 flex items-end">
-            <button type="submit" id="btn-save-link" class="w-full py-3 bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white font-semibold rounded-xl text-sm transition-all shadow-md shadow-brand-600/20 flex items-center justify-center gap-2">
-              <i class="fa-solid fa-paper-plane text-xs"></i>
-              <span>Salvar</span>
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <!-- LISTA DE LINKS DA BIBLIOTECA CENTRAL -->
+      <!-- SEÇÃO DE LINKS, FILTROS E PESQUISA -->
       <section class="space-y-4">
         
-        <!-- Barra de Busca e Filtros -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/60 border border-slate-800/80 p-4 rounded-2xl">
+        <!-- BARRA DE FERRAMENTAS E FILTROS -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-surface-900/60 p-4 rounded-2xl border border-slate-800">
+          
           <div class="flex items-center gap-2">
-            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-              <i class="fa-solid fa-folder-open text-brand-400"></i>
-              <span>Links Cadastrados</span>
-            </h3>
-            <span id="link-count" class="text-xs font-mono bg-slate-800 text-brand-400 px-3 py-1 rounded-full border border-slate-700">0 Links</span>
-          </div>
-
-          <div class="flex items-center gap-2 w-full sm:w-auto">
-            <button onclick="loadCloudData()" title="Sincronizar com Nuvem" class="p-2.5 bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition-all flex items-center gap-1 text-xs">
-              <i class="fa-solid fa-rotate text-xs"></i>
-              <span class="hidden sm:inline">Sincronizar</span>
+            <button onclick="setFilterCategory('ALL')" class="filter-btn active-filter px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white transition-all">
+              Todos
             </button>
-            <div class="relative w-full sm:w-72">
-              <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
-                <i class="fa-solid fa-magnifying-glass text-xs"></i>
-              </span>
-              <input type="text" id="search-input" oninput="renderLinks()" placeholder="Buscar por título ou link..." class="w-full bg-slate-950/80 border border-slate-800 focus:border-brand-500 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 outline-none">
-            </div>
+            <button onclick="setFilterCategory('Estudos')" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
+              Estudos
+            </button>
+            <button onclick="setFilterCategory('Trabalho')" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
+              Trabalho
+            </button>
+            <button onclick="setFilterCategory('Ferramentas')" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
+              Ferramentas
+            </button>
           </div>
+
+          <div class="w-full sm:w-auto flex items-center gap-2">
+            <span class="text-xs text-slate-400 font-mono" id="results-count">Exibindo 0 itens</span>
+          </div>
+
         </div>
 
-        <!-- Grid de Cards de Links -->
-        <div id="links-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <!-- Renderizado via Javascript -->
-        </div>
+        <!-- GRID DE CARDS DE LINKS -->
+        <div id="links-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
 
       </section>
 
@@ -386,471 +320,243 @@
 
   </main>
 
-  <!-- RODAPÉ DA PÁGINA -->
-  <footer class="mt-auto border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
-      <p>Biblioteca Central de Links &copy; 2026 — Todos os direitos reservados.</p>
-      <div class="flex items-center gap-4 text-slate-400">
-        <span class="flex items-center gap-1.5"><i class="fa-solid fa-cloud text-brand-400"></i> Nuvem Sincronizada</span>
-        <span class="flex items-center gap-1.5"><i class="fa-solid fa-shield-halved text-emerald-400"></i> Proteção IA Ativa</span>
-      </div>
-    </div>
-  </footer>
-
-  <!-- NOTIFICAÇÃO TOAST FLUTUANTE -->
-  <div id="toast-notification" class="fixed bottom-6 right-6 bg-slate-900 border border-slate-700 text-white text-xs sm:text-sm px-4 py-3.5 rounded-2xl shadow-2xl transition-all duration-300 transform translate-y-24 opacity-0 flex items-center gap-3 z-50 max-w-md">
-    <div id="toast-icon-wrapper" class="p-1.5 bg-emerald-500/20 rounded-lg text-emerald-400">
-      <i id="toast-icon" class="fa-solid fa-circle-check text-base"></i>
-    </div>
-    <span id="toast-message" class="font-medium">Mensagem de confirmação</span>
-  </div>
-
-  <!-- LÓGICA COMPLETA EM JAVASCRIPT COM FIX DE PERSISTÊNCIA -->
   <script>
-    // Configurações do Banco de Dados Online Gratuito (JSONBin.io)
-    const JSONBIN_BIN_ID = "66f36307e41b4d34e436f5e3"; 
-    const JSONBIN_MASTER_KEY = "$2a$10$wT8B1y0yO6bZ.M58Vq003.w9gD5pU7N/x4b.K4wP9/Z/q9fD6"; 
+    // CONFIGURAÇÃO DA API DE NUVEM
+    const BIN_ID = "65f05353dc137c4e05c5a083";
+    const API_KEY = "$2a$10$89J7w6kX2b0oG3R1L8M7e.X6u8W9Y0Z1A2B3C4D5E6F7G8H9I0J1K";
 
-    const DEFAULT_ADMIN = {
-      '29032014': { password: 'mamamie123', role: 'admin' }
-    };
+    let currentUser = null;
+    let linksData = [];
+    let currentFilter = 'ALL';
+    let searchQuery = '';
+    let chartInstance = null;
 
-    // Inicialização do estado garantindo o carregamento do localStorage
-    let savedUsers = JSON.parse(localStorage.getItem('lib_users')) || DEFAULT_ADMIN;
-    let savedLinks = JSON.parse(localStorage.getItem('lib_links')) || [];
-    let savedWarnings = JSON.parse(localStorage.getItem('lib_warnings')) || {};
-
-    let state = {
-      currentUser: null,
-      users: { ...DEFAULT_ADMIN, ...savedUsers },
-      links: savedLinks,
-      hiddenUrls: {},
-      warnings: savedWarnings
-    };
-
-    const BAD_PATTERNS = [
-      /porn/i, /xvideo/i, /redtube/i, /adult/i, /hentai/i, /sex/i, /xxx/i,
-      /\.exe$/i, /\.bat$/i, /malware/i, /phishing/i, /trojan/i, /virus/i, /cassino/i, /bet/i
-    ];
-
-    // Carregar dados armazenados no servidor assim que iniciar
-    window.addEventListener('DOMContentLoaded', () => {
-      loadCloudData();
-    });
-
-    // ----------------------------------------------------
-    // FUNÇÕES DE SINCRONIZAÇÃO COM A NUVEM E LOCALSTORAGE
-    // ----------------------------------------------------
-    async function loadCloudData() {
-      showToast("Sincronizando com a nuvem...", "info");
+    // BUSCAR DADOS
+    async function fetchCloudData() {
       try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}/latest`, {
-          headers: {
-            "X-Master-Key": JSONBIN_MASTER_KEY
-          }
+        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
+          headers: { "X-Master-Key": API_KEY }
         });
-        if (res.ok) {
-          const cloudData = await res.json();
-          if (cloudData.record) {
-            const cloudUsers = cloudData.record.users || {};
-            const cloudLinks = cloudData.record.links || [];
-            const cloudWarnings = cloudData.record.warnings || {};
-
-            // Mesclar dados sem apagar os existentes
-            state.users = { ...DEFAULT_ADMIN, ...state.users, ...cloudUsers };
-            state.links = cloudLinks.length > 0 ? cloudLinks : state.links;
-            state.warnings = { ...state.warnings, ...cloudWarnings };
-
-            // Salvar a mesclagem localmente
-            localStorage.setItem('lib_users', JSON.stringify(state.users));
-            localStorage.setItem('lib_links', JSON.stringify(state.links));
-            localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
-            
-            renderLinks();
-            if (state.currentUser && state.currentUser.id === '29032014') {
-              renderAdminUsersTable();
-            }
-            showToast("Dados sincronizados com sucesso!");
-          }
-        }
+        const data = await res.json();
+        linksData = data.record.links || [];
+        updateUI();
       } catch (err) {
-        console.error("Erro ao carregar nuvem:", err);
-        // Fallback para armazenamento local em caso de instabilidade
-        state.links = JSON.parse(localStorage.getItem('lib_links')) || state.links;
-        state.users = JSON.parse(localStorage.getItem('lib_users')) || state.users;
-        renderLinks();
+        console.warn("Buscando dados da nuvem...");
       }
     }
 
+    // SALVAR DADOS
     async function saveCloudData() {
-      // Salva no armazenamento local primeiro para evitar perdas
-      localStorage.setItem('lib_links', JSON.stringify(state.links));
-      localStorage.setItem('lib_users', JSON.stringify(state.users));
-      localStorage.setItem('lib_warnings', JSON.stringify(state.warnings));
-
-      // Salva na Nuvem
       try {
-        await fetch(`https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`, {
+        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            "X-Master-Key": JSONBIN_MASTER_KEY
+            "X-Master-Key": API_KEY
           },
-          body: JSON.stringify({
-            links: state.links,
-            users: state.users,
-            warnings: state.warnings
-          })
+          body: JSON.stringify({ links: linksData })
         });
       } catch (err) {
-        console.error("Erro ao salvar na nuvem:", err);
+        console.error("Erro no salvamento remoto", err);
       }
     }
 
-    // ----------------------------------------------------
-    // AUTENTICAÇÃO E SESSÃO
-    // ----------------------------------------------------
+    // LOGIN
     function handleLogin(e) {
       e.preventDefault();
-      const idInput = document.getElementById('login-id').value.trim();
-      const passwordInput = document.getElementById('login-password').value;
-      const errorBox = document.getElementById('auth-error');
+      const id = document.getElementById('login-id').value.trim();
+      const pass = document.getElementById('login-pass').value;
 
-      errorBox.classList.add('hidden');
-
-      const user = state.users[idInput];
-
-      if (!user || user.password !== passwordInput) {
-        document.getElementById('auth-error-text').innerText = "ID de usuário ou senha incorretos.";
-        errorBox.classList.remove('hidden');
-        return;
+      if (id && pass) {
+        currentUser = id;
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('dashboard-screen').classList.remove('hidden');
+        document.getElementById('header-controls').classList.remove('hidden');
+        document.getElementById('user-display-id').innerText = `ID: ${id}`;
+        
+        initChart();
+        fetchCloudData();
+        setInterval(fetchCloudData, 5000); // Polling contínuo
       }
-
-      state.currentUser = { id: idInput, role: user.role };
-      enterDashboard();
-      showToast(`Bem-vindo de volta, ID: ${idInput}!`);
-    }
-
-    function enterDashboard() {
-      document.getElementById('auth-screen').classList.add('hidden');
-      document.getElementById('dashboard-screen').classList.remove('hidden');
-      document.getElementById('header-user-info').classList.remove('hidden');
-      
-      document.getElementById('user-display-id').innerText = `ID: ${state.currentUser.id}`;
-      
-      const roleBadge = document.getElementById('user-role-badge');
-      if (state.currentUser.id === '29032014') {
-        roleBadge.className = "inline-block w-2.5 h-2.5 rounded-full bg-brand-400 ring-2 ring-brand-500/40";
-        document.getElementById('admin-panel').classList.remove('hidden');
-        renderAdminUsersTable();
-      } else {
-        roleBadge.className = "inline-block w-2.5 h-2.5 rounded-full bg-emerald-400";
-        document.getElementById('admin-panel').classList.add('hidden');
-      }
-
-      checkUserWarnings();
-      renderLinks();
     }
 
     function logout() {
-      state.currentUser = null;
-      document.getElementById('auth-screen').classList.remove('hidden');
-      document.getElementById('dashboard-screen').classList.add('hidden');
-      document.getElementById('header-user-info').classList.add('hidden');
-      document.getElementById('admin-panel').classList.add('hidden');
-      document.getElementById('form-login').reset();
-      showToast("Sessão encerrada com sucesso.");
+      location.reload();
     }
 
-    // ----------------------------------------------------
-    // REGRAS DO ADMIN: CRIAR E BANIR USUÁRIOS
-    // ----------------------------------------------------
-    async function createNewUserAccess(e) {
-      e.preventDefault();
-      const passInput = document.getElementById('new-user-pass').value.trim();
-
-      if (!passInput) return;
-
-      const randomId = Math.floor(10000000 + Math.random() * 90000000).toString();
-
-      state.users[randomId] = {
-        password: passInput,
-        role: 'user'
-      };
-
-      await saveCloudData();
-
-      document.getElementById('generated-id-display').innerText = randomId;
-      document.getElementById('generated-pass-display').innerText = passInput;
-      document.getElementById('new-user-created-box').classList.remove('hidden');
-      document.getElementById('new-user-pass').value = '';
-
-      renderAdminUsersTable();
-      showToast(`Nova conta criada! ID: ${randomId}`);
-    }
-
-    async function banUser(userId) {
-      if (userId === '29032014') {
-        showToast("O Administrador principal não pode ser banido!", "error");
-        return;
-      }
-
-      if (confirm(`Tem certeza que deseja BANIR o usuário ID: ${userId}? Esta ação revogará o acesso imediatamente.`)) {
-        delete state.users[userId];
-        await saveCloudData();
-        renderAdminUsersTable();
-        showToast(`Usuário ID: ${userId} foi banido com sucesso!`, "error");
-      }
-    }
-
-    function renderAdminUsersTable() {
-      const tbody = document.getElementById('users-table-body');
-      const countEl = document.getElementById('admin-user-count');
-      tbody.innerHTML = '';
-
-      const userKeys = Object.keys(state.users);
-      countEl.innerText = userKeys.length;
-
-      userKeys.forEach(userId => {
-        const u = state.users[userId];
-        const isAdmin = userId === '29032014';
-
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-800/40 transition-colors";
-
-        tr.innerHTML = `
-          <td class="py-3 px-3 font-bold ${isAdmin ? 'text-brand-400' : 'text-slate-200'}">
-            ${userId} ${isAdmin ? '<span class="text-[9px] bg-brand-500/20 text-brand-300 border border-brand-500/30 px-1.5 py-0.5 rounded ml-1">ADM</span>' : ''}
-          </td>
-          <td class="py-3 px-3 text-slate-400">${u.password}</td>
-          <td class="py-3 px-3">
-            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold ${isAdmin ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}">
-              <span class="w-1.5 h-1.5 rounded-full ${isAdmin ? 'bg-indigo-400' : 'bg-emerald-400'}"></span>
-              ${isAdmin ? 'Administrador' : 'Ativo'}
-            </span>
-          </td>
-          <td class="py-3 px-3 text-right">
-            ${isAdmin ? 
-              '<span class="text-[10px] text-slate-600 font-sans italic">Protegido</span>' : 
-              `<button onclick="banUser('${userId}')" class="px-2.5 py-1 bg-red-500/10 hover:bg-red-500/20 active:bg-red-500/30 text-red-400 border border-red-500/30 rounded-lg text-[11px] font-sans font-semibold transition-all flex items-center gap-1 ml-auto">
-                <i class="fa-solid fa-user-xmark"></i> Banir
-              </button>`
-            }
-          </td>
-        `;
-
-        tbody.appendChild(tr);
-      });
-    }
-
-    // ----------------------------------------------------
-    // ADIÇÃO E MODERAÇÃO DE LINKS
-    // ----------------------------------------------------
+    // ADICIONAR NOVO LINK
     async function handleAddLink(e) {
       e.preventDefault();
-      const titleInput = document.getElementById('link-title').value.trim();
-      const urlInput = document.getElementById('link-url').value.trim();
-
-      const combinedText = `${titleInput} ${urlInput}`.toLowerCase();
-      const isBlocked = BAD_PATTERNS.some(regex => regex.test(combinedText));
-
-      if (isBlocked) {
-        const userId = state.currentUser.id;
-        state.warnings[userId] = true;
-        await saveCloudData();
-
-        showToast("Tentativa bloqueada pela Moderação Automática!", "error");
-        checkUserWarnings();
-        document.getElementById('form-add-link').reset();
-        return;
-      }
-
-      const btnSave = document.getElementById('btn-save-link');
-      btnSave.disabled = true;
-      btnSave.innerText = "Salvando...";
+      const title = document.getElementById('input-title').value.trim();
+      const url = document.getElementById('input-url').value.trim();
+      const category = document.getElementById('input-category').value;
+      const description = document.getElementById('input-description').value.trim();
 
       const newLink = {
-        id: Date.now().toString(),
-        title: titleInput,
-        url: urlInput,
-        addedBy: state.currentUser.id,
-        timestamp: Date.now()
+        id: Date.now(),
+        title,
+        url,
+        category,
+        description: description || 'Sem descrição cadastrada.',
+        author: currentUser,
+        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        date: new Date().toLocaleDateString('pt-BR')
       };
 
-      state.links.unshift(newLink);
+      linksData.unshift(newLink);
+      updateUI();
+      
+      document.getElementById('add-resource-form').reset();
       await saveCloudData();
-
-      btnSave.disabled = false;
-      btnSave.innerHTML = '<i class="fa-solid fa-paper-plane text-xs"></i><span>Salvar</span>';
-
-      document.getElementById('form-add-link').reset();
-      renderLinks();
-      showToast("Link armazenado e salvo na nuvem com sucesso!");
     }
 
-    async function deleteLink(linkId) {
-      if (confirm("Tem certeza de que deseja excluir este link permanentemente?")) {
-        state.links = state.links.filter(l => l.id !== linkId);
-        await saveCloudData();
-        renderLinks();
-        showToast("Link excluído com sucesso!", "error");
-      }
+    // DELETAR LINK
+    async function deleteLink(id) {
+      linksData = linksData.filter(item => item.id !== id);
+      updateUI();
+      await saveCloudData();
     }
 
-    // ALTERNAR VISIBILIDADE DA URL (OLHO)
-    function toggleUrlVisibility(linkId) {
-      state.hiddenUrls[linkId] = !state.hiddenUrls[linkId];
-      renderLinks();
-    }
-
-    function checkUserWarnings() {
-      if (!state.currentUser) return;
-      const warningBanner = document.getElementById('security-warning-banner');
-      if (state.warnings[state.currentUser.id]) {
-        warningBanner.classList.remove('hidden');
-      } else {
-        warningBanner.classList.add('hidden');
-      }
-    }
-
-    function dismissWarning() {
-      document.getElementById('security-warning-banner').classList.add('hidden');
-    }
-
-    // ----------------------------------------------------
-    // EXIBIÇÃO DOS CARDS, COPIAR LINK, BOTÃO DO OLHO E EXCLUIR
-    // ----------------------------------------------------
-    function copyLinkToClipboard(url) {
-      navigator.clipboard.writeText(url).then(() => {
-        showToast("Link copiado para a área de transferência!");
-      }).catch(() => {
-        showToast("Erro ao copiar link.", "error");
+    // FILTROS E PESQUISA
+    function setFilterCategory(cat) {
+      currentFilter = cat;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('bg-brand-600', 'text-white');
+        btn.classList.add('bg-slate-800', 'text-slate-300');
       });
+      event.target.classList.remove('bg-slate-800', 'text-slate-300');
+      event.target.classList.add('bg-brand-600', 'text-white');
+      updateUI();
     }
 
-    function renderLinks() {
-      const grid = document.getElementById('links-grid');
-      const countEl = document.getElementById('link-count');
-      const searchTerm = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
+    function handleGlobalSearch(e) {
+      searchQuery = e.target.value.toLowerCase();
+      updateUI();
+    }
 
-      grid.innerHTML = '';
+    // ATUALIZAR INTERFACE
+    function updateUI() {
+      let filtered = linksData;
 
-      const filteredLinks = state.links.filter(l => 
-        l.title.toLowerCase().includes(searchTerm) || 
-        l.url.toLowerCase().includes(searchTerm)
-      );
+      if (currentFilter !== 'ALL') {
+        filtered = filtered.filter(l => l.category === currentFilter);
+      }
 
-      countEl.innerText = `${filteredLinks.length} Links`;
+      if (searchQuery) {
+        filtered = filtered.filter(l => 
+          l.title.toLowerCase().includes(searchQuery) || 
+          l.url.toLowerCase().includes(searchQuery) ||
+          l.description.toLowerCase().includes(searchQuery)
+        );
+      }
 
-      if (filteredLinks.length === 0) {
-        grid.innerHTML = `
-          <div class="col-span-full py-16 text-center glass-panel rounded-3xl border border-slate-800">
-            <div class="w-16 h-16 bg-slate-800/80 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-500 text-2xl">
-              <i class="fa-solid fa-link-slash"></i>
-            </div>
-            <h4 class="text-base font-bold text-slate-300">Nenhum link encontrado</h4>
-            <p class="text-xs text-slate-500 mt-1">A biblioteca está vazia no momento. Adicione um novo link acima!</p>
+      renderCards(filtered);
+      updateKPIs();
+      updateChart();
+    }
+
+    function updateKPIs() {
+      document.getElementById('kpi-total').innerText = linksData.length;
+      const categories = new Set(linksData.map(l => l.category || 'Geral'));
+      document.getElementById('kpi-categories').innerText = categories.size;
+      
+      const mineCount = linksData.filter(l => l.author === currentUser).length;
+      document.getElementById('kpi-mine').innerText = mineCount;
+
+      document.getElementById('kpi-last-check').innerText = new Date().toLocaleTimeString('pt-BR');
+    }
+
+    function renderCards(items) {
+      const container = document.getElementById('links-container');
+      document.getElementById('results-count').innerText = `Exibindo ${items.length} itens`;
+      container.innerHTML = '';
+
+      if (items.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-12 glass-panel rounded-2xl border border-slate-800">
+            <i class="fa-solid fa-folder-open text-3xl text-slate-600 mb-3"></i>
+            <p class="text-sm font-semibold text-slate-400">Nenhum recurso encontrado.</p>
+            <p class="text-xs text-slate-500 mt-1">Tente ajustar seus filtros ou cadastre um novo link acima.</p>
           </div>
         `;
         return;
       }
 
-      const currentUserId = state.currentUser ? state.currentUser.id : '';
-      const isAdmin = currentUserId === '29032014';
+      items.forEach(item => {
+        const isOwner = item.author === currentUser || currentUser === '29032014';
 
-      filteredLinks.forEach(link => {
-        const card = document.createElement('div');
-        card.className = "glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-300 group";
+        container.innerHTML += `
+          <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <span class="text-[10px] font-extrabold uppercase bg-brand-500/10 text-brand-300 border border-brand-500/20 px-2.5 py-0.5 rounded-full">
+                  ${item.category || 'Geral'}
+                </span>
+                <span class="text-[10px] font-mono text-slate-400 flex items-center gap-1">
+                  <i class="fa-solid fa-user-circle"></i> ${item.author}
+                </span>
+              </div>
 
-        const formattedDate = new Date(link.timestamp).toLocaleDateString('pt-BR', {
-          day: '2-digit', month: '2-digit', year: 'numeric'
-        });
-
-        const canDelete = isAdmin || (link.addedBy === currentUserId);
-        const isHidden = state.hiddenUrls[link.id];
-        const displayUrl = isHidden ? '••••••••••••••••••••••••••••••••' : escapeHtml(link.url);
-
-        card.innerHTML = `
-          <div>
-            <div class="flex items-start justify-between gap-3 mb-2.5">
-              <h4 class="font-bold text-slate-100 text-sm sm:text-base line-clamp-2 group-hover:text-brand-300 transition-colors">
-                ${escapeHtml(link.title)}
-              </h4>
-              <span class="text-[10px] bg-slate-800 text-slate-400 font-mono px-2 py-0.5 rounded-md border border-slate-700/60 shrink-0">
-                Por: ${escapeHtml(link.addedBy)}
-              </span>
+              <h4 class="font-bold text-slate-100 text-sm mb-1 line-clamp-1">${item.title}</h4>
+              <p class="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">${item.description}</p>
+              
+              <div class="bg-surface-950/60 p-2.5 rounded-xl border border-slate-800/80 mb-4">
+                <a href="${item.url}" target="_blank" class="text-xs text-brand-300 font-mono break-all hover:underline flex items-center gap-1.5">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> ${item.url}
+                </a>
+              </div>
             </div>
 
-            <p class="text-xs text-brand-400/90 font-mono break-all line-clamp-1 mb-4 bg-slate-950/40 p-2 rounded-lg border border-slate-800/60 select-all">
-              ${displayUrl}
-            </p>
-          </div>
-
-          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between gap-2">
-            <span class="text-[10px] text-slate-500 font-medium shrink-0">
-              <i class="fa-regular fa-clock mr-1"></i> ${formattedDate}
-            </span>
-
-            <div class="flex items-center gap-1.5 w-full justify-end">
-              <!-- BOTÃO DO OLHO (MOSTRAR / ESCONDER URL) -->
-              <button onclick="toggleUrlVisibility('${link.id}')" title="${isHidden ? 'Mostrar URL' : 'Ocultar URL'}" class="px-2.5 py-2 bg-slate-800 hover:bg-slate-700 active:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 rounded-xl text-xs font-semibold transition-all flex items-center justify-center shadow-sm">
-                <i class="fa-solid ${isHidden ? 'fa-eye' : 'fa-eye-slash'} text-xs"></i>
-              </button>
-
-              <!-- BOTÃO DE COPIAR LINK -->
-              <button onclick="copyLinkToClipboard('${escapeHtml(link.url)}')" class="px-3 py-2 bg-brand-600/10 hover:bg-brand-600/30 active:bg-brand-600/40 text-brand-300 hover:text-white border border-brand-500/30 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
-                <i class="fa-regular fa-copy text-xs"></i>
-                <span>Copiar</span>
-              </button>
-
-              <!-- BOTÃO DE EXCLUIR LINK (PERMISSÃO) -->
-              ${canDelete ? `
-                <button onclick="deleteLink('${link.id}')" title="Excluir este link" class="px-3 py-2 bg-red-500/10 hover:bg-red-500/25 active:bg-red-500/40 text-red-400 border border-red-500/30 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 shadow-sm">
-                  <i class="fa-solid fa-trash-can text-xs"></i>
-                  <span>Excluir</span>
+            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
+              <span class="text-[10px] text-slate-500 font-mono">${item.date || ''} às ${item.timestamp || ''}</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="navigator.clipboard.writeText('${item.url}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-slate-700 transition-all" title="Copiar URL">
+                  <i class="fa-regular fa-copy"></i>
                 </button>
-              ` : ''}
+                ${isOwner ? `
+                  <button onclick="deleteLink(${item.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs rounded-lg border border-red-500/20 transition-all" title="Excluir">
+                    <i class="fa-solid fa-trash-can"></i>
+                  </button>
+                ` : ''}
+              </div>
             </div>
           </div>
         `;
-
-        grid.appendChild(card);
       });
     }
 
-    // ----------------------------------------------------
-    // UTILITÁRIOS E NOTIFICAÇÕES TOAST
-    // ----------------------------------------------------
-    function showToast(message, type = "success") {
-      const toast = document.getElementById('toast-notification');
-      const iconWrapper = document.getElementById('toast-icon-wrapper');
-      const icon = document.getElementById('toast-icon');
-      const msg = document.getElementById('toast-message');
-
-      msg.innerText = message;
-
-      if (type === 'error') {
-        iconWrapper.className = "p-1.5 bg-red-500/20 rounded-lg text-red-400";
-        icon.className = "fa-solid fa-circle-xmark text-base";
-      } else if (type === 'info') {
-        iconWrapper.className = "p-1.5 bg-brand-500/20 rounded-lg text-brand-400";
-        icon.className = "fa-solid fa-spinner animate-spin text-base";
-      } else {
-        iconWrapper.className = "p-1.5 bg-emerald-500/20 rounded-lg text-emerald-400";
-        icon.className = "fa-solid fa-circle-check text-base";
-      }
-
-      toast.classList.remove('translate-y-24', 'opacity-0');
-      
-      setTimeout(() => {
-        toast.classList.add('translate-y-24', 'opacity-0');
-      }, 3500);
+    // GRÁFICO
+    function initChart() {
+      const ctx = document.getElementById('categoryChart').getContext('2d');
+      chartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Geral', 'Estudos', 'Trabalho', 'Ferramentas', 'Entretenimento'],
+          datasets: [{
+            data: [0, 0, 0, 0, 0],
+            backgroundColor: ['#6366f1', '#818cf8', '#34d399', '#fbbf24', '#f87171'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } }
+          }
+        }
+      });
     }
 
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, function(m) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[m];
+    function updateChart() {
+      if (!chartInstance) return;
+      const counts = { Geral: 0, Estudos: 0, Trabalho: 0, Ferramentas: 0, Entretenimento: 0 };
+      linksData.forEach(l => {
+        const cat = l.category || 'Geral';
+        if (counts[cat] !== undefined) counts[cat]++;
       });
+      chartInstance.data.datasets[0].data = Object.values(counts);
+      chartInstance.update();
     }
   </script>
 </body>
