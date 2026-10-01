@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema Central de Gestão de Links & Recursos - Enterprise</title>
-  
-  <!-- Tailwind CSS via CDN -->
+  <title>Central Link Library - VMAX 4.2 Enterprise</title>
+
+  <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -14,7 +14,7 @@
         extend: {
           colors: {
             brand: {
-              50: '#f0f3ff',
+              50: '#eef2ff',
               100: '#e0e7ff',
               200: '#c7d2fe',
               300: '#a5b4fc',
@@ -28,291 +28,340 @@
             },
             surface: {
               800: '#1e293b',
-              850: '#172133',
+              850: '#151f32',
               900: '#0f172a',
               950: '#020617'
             }
+          },
+          fontSize: {
+            'huge-title': ['3rem', { lineHeight: '1.1' }],
+            'giant-title': ['4rem', { lineHeight: '1.05' }],
           }
         }
       }
     }
   </script>
 
-  <!-- Dependências e Fontes -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js for Dashboard Visualizations -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <!-- Inter Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    ::-webkit-scrollbar { width: 8px; height: 8px; }
-    ::-webkit-scrollbar-track { background: #020617; }
-    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-    ::-webkit-scrollbar-thumb:hover { background: #334155; }
-    
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    ::-webkit-scrollbar {
+      width: 14px;
+      height: 14px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #020617;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 8px;
+      border: 3px solid #020617;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4f46e5;
+    }
     .glass-panel {
-      background: rgba(15, 23, 42, 0.8);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 255, 255, 0.12);
     }
     .glass-card {
-      background: rgba(30, 41, 59, 0.4);
-      backdrop-filter: blur(8px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.25s ease-in-out;
     }
     .glass-card:hover {
-      background: rgba(30, 41, 59, 0.7);
-      border-color: rgba(99, 102, 241, 0.4);
-      transform: translateY(-2px);
+      background: rgba(30, 41, 59, 0.95);
+      border-color: #6366f1;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px -10px rgba(99, 102, 241, 0.3);
     }
-    .custom-gradient {
+    .gradient-header {
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #db2777 100%);
+    }
+    /* Enforce High Visibility Touch Controls */
+    input, select, button {
+      touch-action: manipulation;
     }
   </style>
 </head>
-<body class="bg-surface-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white">
 
-  <!-- BARRA DE NAVEGAÇÃO SUPERIOR -->
-  <header class="bg-surface-900/90 backdrop-blur-md border-b border-slate-800/80 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<body class="bg-surface-950 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-brand-500 selection:text-white pb-20">
+
+  <header class="bg-surface-900/95 border-b-4 border-brand-500 sticky top-0 z-50 shadow-2xl backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-28 flex items-center justify-between">
       
-      <!-- LOGO E STATUS -->
-      <div class="flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl custom-gradient flex items-center justify-center text-white shadow-lg shadow-brand-500/20">
-          <i class="fa-solid fa-layer-group text-lg"></i>
+      <!-- LOGO & SYSTEM STATUS -->
+      <div class="flex items-center space-x-5">
+        <div class="w-16 h-16 rounded-2xl gradient-header flex items-center justify-center text-white shadow-xl shadow-brand-500/30">
+          <i class="fa-solid fa-server text-3xl"></i>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <h1 class="text-base font-bold tracking-tight text-white">Central Hub</h1>
-            <span class="text-[10px] font-extrabold uppercase bg-brand-500/20 text-brand-300 border border-brand-500/30 px-2 py-0.5 rounded-full tracking-wider">
-              Enterprise v4.2
+          <div class="flex items-center gap-3">
+            <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-white uppercase">Central Hub</h1>
+            <span class="text-sm font-black uppercase bg-brand-500 text-white border-2 border-brand-400 px-3 py-1 rounded-full tracking-wider">
+              v4.2 VMAX
             </span>
           </div>
-          <p class="text-[11px] text-slate-400">Gestão Global de Links & Ativos Digitais</p>
+          <p class="text-lg text-slate-300 font-medium">Sistema Global de Gestão & Links em Nuvem</p>
         </div>
       </div>
 
-      <!-- BUSCA RÁPIDA GLOBAL E USUÁRIO -->
-      <div id="header-controls" class="hidden flex items-center gap-4">
-        <div class="relative hidden lg:block">
-          <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-          <input type="text" id="global-search" oninput="handleGlobalSearch(event)" placeholder="Filtrar links rapidamente..." class="bg-surface-950 border border-slate-800 rounded-xl pl-9 pr-4 py-1.5 text-xs text-slate-200 outline-none focus:border-brand-500 w-64 transition-all">
+      <!-- HEADER CONTROLS (VISIBLE AFTER LOGIN) -->
+      <div id="header-user-badge" class="hidden flex items-center gap-6">
+        <div class="hidden xl:flex items-center gap-3 px-5 py-3 rounded-2xl bg-emerald-500/20 border-2 border-emerald-500/40">
+          <span class="w-4 h-4 rounded-full bg-emerald-400 animate-ping"></span>
+          <span class="text-lg font-black text-emerald-300 uppercase tracking-wide">Nuvem Ativa</span>
         </div>
 
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-800/50 border border-slate-700/50">
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span class="text-xs font-mono font-medium text-slate-300">Sincronizado</span>
+        <div class="text-right hidden sm:block">
+          <p class="text-xs uppercase tracking-widest text-slate-400 font-extrabold">Operador Logado</p>
+          <p id="nav-user-id" class="text-xl font-black text-brand-300 font-mono">ID: ----</p>
         </div>
 
-        <div class="text-right">
-          <p class="text-[9px] uppercase tracking-wider text-slate-400 font-bold">Sessão Ativa</p>
-          <p id="user-display-id" class="text-xs font-bold text-brand-300 font-mono">ID: ----</p>
-        </div>
-
-        <button onclick="logout()" class="p-2 text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl border border-red-500/30 transition-all" title="Sair do Sistema">
-          <i class="fa-solid fa-power-off"></i>
+        <button onclick="appLogout()" class="px-6 py-3.5 text-lg font-black bg-red-600/30 hover:bg-red-600/50 text-red-200 rounded-2xl border-2 border-red-500/50 transition-all flex items-center gap-2 shadow-lg">
+          <i class="fa-solid fa-power-off text-xl"></i>
+          <span class="hidden md:inline">SAIR</span>
         </button>
       </div>
 
     </div>
   </header>
 
-  <!-- CONTAINER PRINCIPAL -->
-  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8">
 
-    <!-- TELA DE AUTENTICAÇÃO -->
-    <section id="auth-screen" class="max-w-md w-full mx-auto my-12">
-      <div class="glass-panel rounded-3xl p-8 shadow-2xl border border-slate-800 relative overflow-hidden">
-        <div class="absolute -right-12 -top-12 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl"></div>
-        <div class="text-center mb-8 relative z-10">
-          <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-brand-600/20 text-brand-400 border border-brand-500/30 mb-4 shadow-inner">
-            <i class="fa-solid fa-user-shield text-2xl"></i>
+    <!-- AUTHENTICATION SCREEN -->
+    <section id="screen-auth" class="max-w-2xl mx-auto my-8 sm:my-16">
+      <div class="glass-panel rounded-3xl p-8 sm:p-12 shadow-2xl border-4 border-slate-800 relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-64 h-64 bg-brand-500/20 rounded-full blur-3xl"></div>
+        
+        <div class="text-center mb-10 relative z-10">
+          <div class="inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-brand-600/30 text-brand-300 border-2 border-brand-500/50 mb-6 shadow-inner">
+            <i class="fa-solid fa-shield-halved text-4xl"></i>
           </div>
-          <h2 class="text-2xl font-black text-white tracking-tight">Portal de Acesso</h2>
-          <p class="text-xs text-slate-400 mt-1.5">Insira seu ID e Senha corporativa para sincronizar os dados</p>
+          <h2 class="text-4xl sm:text-5xl font-black text-white tracking-tight uppercase">Acesso Restrito</h2>
+          <p class="text-xl text-slate-300 mt-3 font-medium">Informe suas credenciais para sincronização corporativa</p>
         </div>
 
-        <form onsubmit="handleLogin(event)" class="space-y-4 relative z-10">
+        <form onsubmit="handleAuthSubmit(event)" class="space-y-6 relative z-10">
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">ID de Usuário</label>
+            <label class="block text-lg font-black uppercase tracking-wider text-slate-200 mb-2">ID de Operador</label>
             <div class="relative">
-              <i class="fa-solid fa-id-badge absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
-              <input type="text" id="login-id" required placeholder="Ex: 29032014" class="w-full bg-surface-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 outline-none focus:border-brand-500 transition-all font-mono">
+              <i class="fa-solid fa-user-gear absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-2xl"></i>
+              <input type="text" id="auth-id" required placeholder="Ex: 29032014" class="w-full bg-surface-950 border-2 border-slate-700 rounded-2xl pl-16 pr-5 py-4 text-2xl text-white outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/20 font-mono transition-all">
             </div>
           </div>
+
           <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Chave de Acesso</label>
+            <label class="block text-lg font-black uppercase tracking-wider text-slate-200 mb-2">Senha de Segurança</label>
             <div class="relative">
-              <i class="fa-solid fa-key absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm"></i>
-              <input type="password" id="login-pass" required placeholder="••••••••" class="w-full bg-surface-950 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 outline-none focus:border-brand-500 transition-all font-mono">
+              <i class="fa-solid fa-key absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-2xl"></i>
+              <input type="password" id="auth-pass" required placeholder="••••••••••••" class="w-full bg-surface-950 border-2 border-slate-700 rounded-2xl pl-16 pr-5 py-4 text-2xl text-white outline-none focus:border-brand-500 focus:ring-4 focus:ring-brand-500/20 font-mono transition-all">
             </div>
           </div>
-          <button type="submit" class="w-full py-3.5 custom-gradient text-white font-bold rounded-xl text-sm transition-all shadow-lg shadow-brand-600/25 hover:opacity-95">
-            Autenticar e Entrar
+
+          <div id="auth-error-msg" class="hidden p-4 rounded-xl bg-red-500/20 border-2 border-red-500/40 text-red-300 text-lg font-bold text-center">
+            Credenciais incorretas! Verifique ID e senha.
+          </div>
+
+          <button type="submit" class="w-full py-5 gradient-header text-white font-black rounded-2xl text-2xl uppercase tracking-wider transition-all shadow-xl shadow-brand-600/30 hover:opacity-95 active:scale-95 flex items-center justify-center gap-3">
+            <i class="fa-solid fa-right-to-bracket text-3xl"></i>
+            Autenticar e Sincronizar
           </button>
         </form>
       </div>
     </section>
 
-    <!-- PAINEL DASHBOARD COMPLETO -->
-    <div id="dashboard-screen" class="hidden space-y-8">
+    <div id="screen-dashboard" class="hidden space-y-10">
 
-      <!-- BANNER DE BOAS VINDAS E MÉTRICAS GERAIS -->
-      <section class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- TOP METRICS GRID -->
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div class="glass-panel p-6 rounded-3xl border-2 border-slate-800 flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Total no Banco</p>
-            <p id="kpi-total" class="text-3xl font-black text-white mt-1">0</p>
-            <p class="text-[11px] text-emerald-400 mt-1"><i class="fa-solid fa-arrow-up text-[10px]"></i> Ativos na Nuvem</p>
+            <p class="text-base font-black uppercase tracking-wider text-slate-400">Total Gravado</p>
+            <p id="kpi-total-links" class="text-5xl font-black text-white mt-2 font-mono">0</p>
+            <p class="text-sm font-bold text-emerald-400 mt-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-cloud-arrow-up"></i> Sincronizado
+            </p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 text-xl">
+          <div class="w-16 h-16 rounded-2xl bg-brand-500/20 border-2 border-brand-500/40 flex items-center justify-center text-brand-300 text-3xl">
             <i class="fa-solid fa-database"></i>
           </div>
         </div>
 
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div class="glass-panel p-6 rounded-3xl border-2 border-slate-800 flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Categorias</p>
-            <p id="kpi-categories" class="text-3xl font-black text-white mt-1">0</p>
-            <p class="text-[11px] text-indigo-400 mt-1"><i class="fa-solid fa-tags text-[10px]"></i> Categorizados</p>
+            <p class="text-base font-black uppercase tracking-wider text-slate-400">Categorias</p>
+            <p id="kpi-total-cats" class="text-5xl font-black text-white mt-2 font-mono">0</p>
+            <p class="text-sm font-bold text-indigo-400 mt-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-folder-tree"></i> Agrupamentos
+            </p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 text-xl">
-            <i class="fa-solid fa-folder-tree"></i>
+          <div class="w-16 h-16 rounded-2xl bg-indigo-500/20 border-2 border-indigo-500/40 flex items-center justify-center text-indigo-300 text-3xl">
+            <i class="fa-solid fa-layer-group"></i>
           </div>
         </div>
 
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div class="glass-panel p-6 rounded-3xl border-2 border-slate-800 flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Seus Links</p>
-            <p id="kpi-mine" class="text-3xl font-black text-white mt-1">0</p>
-            <p class="text-[11px] text-purple-400 mt-1"><i class="fa-solid fa-user text-[10px]"></i> Cadastrados por você</p>
+            <p class="text-base font-black uppercase tracking-wider text-slate-400">Seus Links</p>
+            <p id="kpi-user-links" class="text-5xl font-black text-white mt-2 font-mono">0</p>
+            <p class="text-sm font-bold text-purple-400 mt-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-check"></i> Autor
+            </p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 text-xl">
-            <i class="fa-solid fa-user-check"></i>
+          <div class="w-16 h-16 rounded-2xl bg-purple-500/20 border-2 border-purple-500/40 flex items-center justify-center text-purple-300 text-3xl">
+            <i class="fa-solid fa-user-shield"></i>
           </div>
         </div>
 
-        <div class="glass-panel p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div class="glass-panel p-6 rounded-3xl border-2 border-slate-800 flex items-center justify-between">
           <div>
-            <p class="text-xs font-bold uppercase tracking-wider text-slate-400">Última Checagem</p>
-            <p id="kpi-last-check" class="text-base font-bold text-slate-200 font-mono mt-2">--:--:--</p>
-            <p class="text-[11px] text-slate-500 mt-1"><i class="fa-solid fa-rotate text-[10px]"></i> Polling a cada 5s</p>
+            <p class="text-base font-black uppercase tracking-wider text-slate-400">Última Checagem</p>
+            <p id="kpi-last-sync" class="text-2xl font-black text-slate-200 mt-3 font-mono">--:--:--</p>
+            <p class="text-sm font-bold text-slate-400 mt-2 flex items-center gap-1.5">
+              <i class="fa-solid fa-rotate animate-spin"></i> Realtime Auto
+            </p>
           </div>
-          <div class="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 text-xl">
+          <div class="w-16 h-16 rounded-2xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center text-slate-300 text-3xl">
             <i class="fa-solid fa-clock-rotate-left"></i>
           </div>
         </div>
 
       </section>
 
-      <!-- PAINEL DE ADIÇÃO E GRÁFICOS -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
         
-        <!-- FORMULÁRIO DE ADIÇÃO AVANÇADO (7 COLS) -->
-        <section class="lg:col-span-7 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
-          <div>
-            <div class="flex items-center justify-between mb-6">
+        <!-- NEW LINK FORM (7 COLS) -->
+        <section class="lg:col-span-7 glass-panel p-8 sm:p-10 rounded-3xl border-4 border-slate-800">
+          <div class="flex items-center justify-between mb-8 pb-4 border-b-2 border-slate-800">
+            <div>
+              <h3 class="text-3xl font-black text-white uppercase flex items-center gap-3">
+                <i class="fa-solid fa-circle-plus text-brand-400"></i> Cadastrar Recurso
+              </h3>
+              <p class="text-lg text-slate-300 mt-1">Sincronização imediata em tempo real entre dispositivos</p>
+            </div>
+            <span class="text-sm font-black bg-brand-500/20 text-brand-300 border-2 border-brand-500/40 px-4 py-2 rounded-xl font-mono">
+              NUVEM ATIVA
+            </span>
+          </div>
+
+          <form id="form-add-link" onsubmit="handleLinkSubmit(event)" class="space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <h3 class="text-lg font-bold text-white flex items-center gap-2">
-                  <i class="fa-solid fa-plus-circle text-brand-400"></i> Cadastrar Novo Recurso
-                </h3>
-                <p class="text-xs text-slate-400 mt-1">Preencha os metadados para sincronizar o link na nuvem</p>
+                <label class="block text-lg font-black uppercase text-slate-200 mb-2">Título do Link</label>
+                <input type="text" id="input-title" required placeholder="Ex: Portal de Pesquisa" class="w-full bg-surface-950 border-2 border-slate-700 rounded-2xl px-5 py-4 text-xl text-white outline-none focus:border-brand-500 transition-all">
               </div>
-              <span class="text-[10px] bg-brand-500/10 text-brand-300 border border-brand-500/20 px-2.5 py-1 rounded-lg font-mono">
-                Auto-Sync
-              </span>
+              <div>
+                <label class="block text-lg font-black uppercase text-slate-200 mb-2">Categoria</label>
+                <select id="input-category" class="w-full bg-surface-950 border-2 border-slate-700 rounded-2xl px-5 py-4 text-xl text-white outline-none focus:border-brand-500 transition-all font-bold">
+                  <option value="Geral">📂 Geral</option>
+                  <option value="Estudos">📚 Estudos</option>
+                  <option value="Trabalho">💼 Trabalho</option>
+                  <option value="Ferramentas">🛠️ Ferramentas</option>
+                  <option value="Entretenimento">🎮 Entretenimento</option>
+                </select>
+              </div>
             </div>
 
-            <form id="add-resource-form" onsubmit="handleAddLink(event)" class="space-y-4">
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Título do Link</label>
-                  <input type="text" id="input-title" required placeholder="Ex: Documentação Tailwind" class="w-full bg-surface-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-all">
-                </div>
-                <div>
-                  <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Categoria</label>
-                  <select id="input-category" class="w-full bg-surface-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm text-slate-200 outline-none focus:border-brand-500 transition-all">
-                    <option value="Geral">📂 Geral</option>
-                    <option value="Estudos">📚 Estudos</option>
-                    <option value="Trabalho">💼 Trabalho</option>
-                    <option value="Ferramentas">🛠️ Ferramentas</option>
-                    <option value="Entretenimento">🎮 Entretenimento</option>
-                  </select>
-                </div>
+            <div>
+              <label class="block text-lg font-black uppercase text-slate-200 mb-2">Endereço Completo (URL)</label>
+              <div class="relative">
+                <i class="fa-solid fa-link absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
+                <input type="url" id="input-url" required placeholder="https://exemplo.com/recurso" class="w-full bg-surface-950 border-2 border-slate-700 rounded-2xl pl-14 pr-5 py-4 text-xl text-white outline-none focus:border-brand-500 transition-all font-mono">
               </div>
+            </div>
 
-              <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">URL Completa</label>
-                <div class="relative">
-                  <i class="fa-solid fa-link absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                  <input type="url" id="input-url" required placeholder="https://exemplo.com/recurso" class="w-full bg-surface-950 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm outline-none focus:border-brand-500 transition-all font-mono">
-                </div>
-              </div>
+            <div>
+              <label class="block text-lg font-black uppercase text-slate-200 mb-2">Descrição Curta (Opcional)</label>
+              <input type="text" id="input-description" placeholder="Resumo e utilidade deste link..." class="w-full bg-surface-950 border-2 border-slate-700 rounded-2xl px-5 py-3.5 text-lg text-white outline-none focus:border-brand-500 transition-all">
+            </div>
 
-              <div>
-                <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Descrição Breve (Opcional)</label>
-                <input type="text" id="input-description" placeholder="Resumo do que se trata este site..." class="w-full bg-surface-950 border border-slate-800 rounded-xl px-4 py-2 text-xs outline-none focus:border-brand-500 transition-all">
-              </div>
-
-              <div class="pt-2 flex justify-end">
-                <button type="submit" class="px-6 py-3 custom-gradient text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-lg shadow-brand-500/20 hover:opacity-90 transition-all">
-                  <i class="fa-solid fa-cloud-arrow-up mr-1.5"></i> Salvar na Nuvem
-                </button>
-              </div>
-            </form>
-          </div>
+            <button type="submit" id="btn-save-link" class="w-full py-5 gradient-header text-white font-black text-2xl uppercase tracking-wider rounded-2xl shadow-2xl shadow-brand-500/30 hover:opacity-90 active:scale-95 transition-all flex items-center justify-center gap-3">
+              <i class="fa-solid fa-cloud-arrow-up text-3xl"></i>
+              Salvar na Nuvem Agora
+            </button>
+          </form>
         </section>
 
-        <!-- GRÁFICO E DISTRIBUIÇÃO VISUAL (5 COLS) -->
-        <section class="lg:col-span-5 glass-panel p-6 sm:p-8 rounded-3xl border border-slate-800 flex flex-col justify-between">
+        <!-- CATEGORY DISTRIBUTION CHART (5 COLS) -->
+        <section class="lg:col-span-5 glass-panel p-8 rounded-3xl border-4 border-slate-800 flex flex-col justify-between">
           <div>
-            <h3 class="text-base font-bold text-white mb-1 flex items-center gap-2">
-              <i class="fa-solid fa-chart-pie text-brand-400"></i> Distribuição do Acervo
+            <h3 class="text-2xl font-black text-white uppercase mb-2 flex items-center gap-3">
+              <i class="fa-solid fa-chart-pie text-brand-400"></i> Distribuição
             </h3>
-            <p class="text-xs text-slate-400 mb-4">Proporção dos links cadastrados por categoria</p>
-            
-            <div class="h-44 w-full flex items-center justify-center">
-              <canvas id="categoryChart"></canvas>
+            <p class="text-base text-slate-300 mb-6">Métricas de volume por categoria</p>
+
+            <div class="h-64 w-full flex items-center justify-center">
+              <canvas id="categoryDistributionChart"></canvas>
             </div>
           </div>
-          <div class="mt-4 pt-4 border-t border-slate-800/80 text-[11px] text-slate-500 text-center">
-            Gráfico gerado em tempo real com dados sincronizados.
+          <div class="mt-6 pt-4 border-t-2 border-slate-800 text-center font-mono text-sm text-slate-400">
+            Gráfico dinâmico atualizado via eventos Realtime.
           </div>
         </section>
 
       </div>
 
-      <!-- SEÇÃO DE LINKS, FILTROS E PESQUISA -->
-      <section class="space-y-4">
+      <section class="space-y-6">
         
-        <!-- BARRA DE FERRAMENTAS E FILTROS -->
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-surface-900/60 p-4 rounded-2xl border border-slate-800">
+        <div class="glass-panel p-6 rounded-3xl border-4 border-slate-800 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
           
-          <div class="flex items-center gap-2">
-            <button onclick="setFilterCategory('ALL')" class="filter-btn active-filter px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-600 text-white transition-all">
-              Todos
+          <!-- CATEGORY FILTERS -->
+          <div class="flex flex-wrap items-center gap-3">
+            <button onclick="applyCategoryFilter('ALL', this)" class="btn-filter active-filter px-6 py-3.5 rounded-2xl text-lg font-black bg-brand-600 text-white border-2 border-brand-400 shadow-lg">
+              TODOS
             </button>
-            <button onclick="setFilterCategory('Estudos')" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
-              Estudos
+            <button onclick="applyCategoryFilter('Estudos', this)" class="btn-filter px-6 py-3.5 rounded-2xl text-lg font-black bg-slate-800 text-slate-200 border-2 border-slate-700 hover:bg-slate-700">
+              ESTUDOS
             </button>
-            <button onclick="setFilterCategory('Trabalho')" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
-              Trabalho
+            <button onclick="applyCategoryFilter('Trabalho', this)" class="btn-filter px-6 py-3.5 rounded-2xl text-lg font-black bg-slate-800 text-slate-200 border-2 border-slate-700 hover:bg-slate-700">
+              TRABALHO
             </button>
-            <button onclick="setFilterCategory('Ferramentas')" class="filter-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition-all">
-              Ferramentas
+            <button onclick="applyCategoryFilter('Ferramentas', this)" class="btn-filter px-6 py-3.5 rounded-2xl text-lg font-black bg-slate-800 text-slate-200 border-2 border-slate-700 hover:bg-slate-700">
+              FERRAMENTAS
+            </button>
+            <button onclick="applyCategoryFilter('Entretenimento', this)" class="btn-filter px-6 py-3.5 rounded-2xl text-lg font-black bg-slate-800 text-slate-200 border-2 border-slate-700 hover:bg-slate-700">
+              GAMES
             </button>
           </div>
 
-          <div class="w-full sm:w-auto flex items-center gap-2">
-            <span class="text-xs text-slate-400 font-mono" id="results-count">Exibindo 0 itens</span>
+          <!-- SEARCH INPUT & BULK ACTION -->
+          <div class="flex flex-col sm:flex-row items-center gap-4">
+            <div class="relative w-full sm:w-80">
+              <i class="fa-solid fa-magnifying-glass absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-xl"></i>
+              <input type="text" id="input-search" oninput="handleSearchInput(event)" placeholder="Buscar no acervo..." class="w-full bg-surface-950 border-2 border-slate-700 rounded-2xl pl-12 pr-4 py-3.5 text-lg text-white outline-none focus:border-brand-500">
+            </div>
+
+            <button onclick="generateVmaxSampleData()" class="w-full sm:w-auto px-6 py-3.5 bg-slate-800 hover:bg-slate-700 text-brand-300 font-black rounded-2xl border-2 border-brand-500/40 text-base uppercase tracking-wider flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bolt"></i> Preencher Amostra (1000)
+            </button>
           </div>
 
         </div>
 
-        <!-- GRID DE CARDS DE LINKS -->
-        <div id="links-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        <div class="flex justify-between items-center px-2">
+          <p id="label-result-count" class="text-xl font-black text-slate-300 font-mono">Exibindo 0 itens</p>
+          <p id="sync-status-indicator" class="text-base text-emerald-400 font-bold flex items-center gap-2">
+            <i class="fa-solid fa-signal"></i> Banco Conectado
+          </p>
+        </div>
+
+        <div id="grid-links-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Dynamic cards rendered here -->
+        </div>
 
       </section>
 
@@ -320,244 +369,425 @@
 
   </main>
 
-  <script>
-    // CONFIGURAÇÃO DA API DE NUVEM
-    const BIN_ID = "65f05353dc137c4e05c5a083";
-    const API_KEY = "$2a$10$89J7w6kX2b0oG3R1L8M7e.X6u8W9Y0Z1A2B3C4D5E6F7G8H9I0J1K";
+  <div id="toast-message" class="fixed bottom-8 right-8 hidden z-50 px-8 py-5 rounded-2xl bg-slate-900 border-4 border-brand-500 text-white text-xl font-extrabold shadow-2xl flex items-center gap-4">
+    <i class="fa-solid fa-circle-check text-emerald-400 text-3xl"></i>
+    <span id="toast-text">Ação executada com sucesso!</span>
+  </div>
 
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, collection, onSnapshot, setDoc, deleteDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Application state
+    let app = null;
+    let auth = null;
+    let db = null;
     let currentUser = null;
-    let linksData = [];
-    let currentFilter = 'ALL';
-    let searchQuery = '';
-    let chartInstance = null;
+    let rawLinksList = [];
+    let activeFilterCategory = 'ALL';
+    let activeSearchQuery = '';
+    let categoryChartInstance = null;
 
-    // BUSCAR DADOS
-    async function fetchCloudData() {
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'vmax-link-hub';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' 
+      ? JSON.parse(__firebase_config) 
+      : {
+          // Fallback open config if environment variable is missing
+          apiKey: "AIzaSyDummyKeyForVmaxTestingPurposeOnly",
+          authDomain: "vmax-link-hub.firebaseapp.com",
+          projectId: "vmax-link-hub",
+          storageBucket: "vmax-link-hub.appspot.com",
+          messagingSenderId: "123456789",
+          appId: "1:123456789:web:abc123def456"
+        };
+
+    async function initFirebaseConnection() {
       try {
-        const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-          headers: { "X-Master-Key": API_KEY }
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            currentUser = user;
+            subscribeToDatabaseUpdates();
+          }
         });
-        const data = await res.json();
-        linksData = data.record.links || [];
-        updateUI();
       } catch (err) {
-        console.warn("Buscando dados da nuvem...");
+        console.warn("Erro ao iniciar Firebase SDK real. Ativando modo local resiliente:", err);
+        fallbackLocalDataMode();
       }
     }
 
-    // SALVAR DADOS
-    async function saveCloudData() {
-      try {
-        await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Master-Key": API_KEY
-          },
-          body: JSON.stringify({ links: linksData })
+    // Subscribe to Firestore Public Artifact collection
+    function subscribeToDatabaseUpdates() {
+      if (!currentUser || !db) return;
+
+      const publicDataRef = collection(db, 'artifacts', appId, 'public', 'data', 'vmax_links');
+
+      onSnapshot(publicDataRef, (snapshot) => {
+        const items = [];
+        snapshot.forEach((docSnap) => {
+          items.push({ id: docSnap.id, ...docSnap.data() });
         });
-      } catch (err) {
-        console.error("Erro no salvamento remoto", err);
-      }
+
+        // Sort latest first
+        items.sort((a, b) => (b.timestampRaw || 0) - (a.timestampRaw || 0));
+        rawLinksList = items;
+        refreshDashboardUI();
+      }, (error) => {
+        console.error("Firestore Listen Error:", error);
+      });
     }
 
-    // LOGIN
-    function handleLogin(e) {
+    // Local Storage Fallback if Firebase is unreachable
+    function fallbackLocalDataMode() {
+      const stored = localStorage.getItem('vmax_local_links');
+      if (stored) {
+        try { rawLinksList = JSON.parse(stored); } catch(e) { rawLinksList = []; }
+      }
+      refreshDashboardUI();
+    }
+
+    function saveLocalFallback() {
+      localStorage.setItem('vmax_local_links', JSON.stringify(rawLinksList));
+    }
+
+    window.handleAuthSubmit = function(e) {
       e.preventDefault();
-      const id = document.getElementById('login-id').value.trim();
-      const pass = document.getElementById('login-pass').value;
+      const userVal = document.getElementById('auth-id').value.trim();
+      const passVal = document.getElementById('auth-pass').value.trim();
+      const errorDiv = document.getElementById('auth-error-msg');
 
-      if (id && pass) {
-        currentUser = id;
-        document.getElementById('auth-screen').classList.add('hidden');
-        document.getElementById('dashboard-screen').classList.remove('hidden');
-        document.getElementById('header-controls').classList.remove('hidden');
-        document.getElementById('user-display-id').innerText = `ID: ${id}`;
+      // Admin verification rule
+      if ((userVal === '29032014' && passVal === 'mamamie123') || (userVal.length >= 3 && passVal.length >= 3)) {
+        sessionStorage.setItem('vmax_logged_user', userVal);
+        document.getElementById('screen-auth').classList.add('hidden');
+        document.getElementById('screen-dashboard').classList.remove('hidden');
+        document.getElementById('header-user-badge').classList.remove('hidden');
+        document.getElementById('nav-user-id').innerText = `ID: ${userVal}`;
         
-        initChart();
-        fetchCloudData();
-        setInterval(fetchCloudData, 5000); // Polling contínuo
+        errorDiv.classList.add('hidden');
+        initCategoryChart();
+        showToast(`Bem-vindo, Operador ${userVal}!`);
+        refreshDashboardUI();
+      } else {
+        errorDiv.classList.remove('hidden');
       }
     }
 
-    function logout() {
+    window.appLogout = function() {
+      sessionStorage.removeItem('vmax_logged_user');
       location.reload();
     }
 
-    // ADICIONAR NOVO LINK
-    async function handleAddLink(e) {
+    window.handleLinkSubmit = async function(e) {
       e.preventDefault();
       const title = document.getElementById('input-title').value.trim();
-      const url = document.getElementById('input-url').value.trim();
       const category = document.getElementById('input-category').value;
+      const url = document.getElementById('input-url').value.trim();
       const description = document.getElementById('input-description').value.trim();
+      const author = sessionStorage.getItem('vmax_logged_user') || '29032014';
 
-      const newLink = {
-        id: Date.now(),
-        title,
-        url,
-        category,
+      const btn = document.getElementById('btn-save-link');
+      btn.disabled = true;
+      btn.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-3xl"></i> SALVANDO NA NUVEM...`;
+
+      const now = new Date();
+      const docId = 'link_' + Date.now();
+
+      const newRecord = {
+        title: title,
+        category: category,
+        url: url,
         description: description || 'Sem descrição cadastrada.',
-        author: currentUser,
-        timestamp: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-        date: new Date().toLocaleDateString('pt-BR')
+        author: author,
+        dateStr: now.toLocaleDateString('pt-BR'),
+        timeStr: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+        timestampRaw: now.getTime()
       };
 
-      linksData.unshift(newLink);
-      updateUI();
-      
-      document.getElementById('add-resource-form').reset();
-      await saveCloudData();
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'vmax_links', docId);
+          await setDoc(docRef, newRecord);
+        } else {
+          rawLinksList.unshift({ id: docId, ...newRecord });
+          saveLocalFallback();
+          refreshDashboardUI();
+        }
+
+        document.getElementById('form-add-link').reset();
+        showToast('Link gravado com sucesso na nuvem!');
+      } catch (err) {
+        console.error("Save Error:", err);
+        // Fallback save
+        rawLinksList.unshift({ id: docId, ...newRecord });
+        saveLocalFallback();
+        refreshDashboardUI();
+        showToast('Salvo em modo local resiliente!');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up text-3xl"></i> Salvar na Nuvem Agora`;
+      }
     }
 
-    // DELETAR LINK
-    async function deleteLink(id) {
-      linksData = linksData.filter(item => item.id !== id);
-      updateUI();
-      await saveCloudData();
+    window.deleteLinkRecord = async function(id) {
+      try {
+        if (db && currentUser) {
+          const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'vmax_links', id);
+          await deleteDoc(docRef);
+        } else {
+          rawLinksList = rawLinksList.filter(item => item.id !== id);
+          saveLocalFallback();
+          refreshDashboardUI();
+        }
+        showToast('Registro removido do banco!');
+      } catch (err) {
+        console.error("Delete Error:", err);
+        rawLinksList = rawLinksList.filter(item => item.id !== id);
+        saveLocalFallback();
+        refreshDashboardUI();
+      }
     }
 
-    // FILTROS E PESQUISA
-    function setFilterCategory(cat) {
-      currentFilter = cat;
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('bg-brand-600', 'text-white');
-        btn.classList.add('bg-slate-800', 'text-slate-300');
+    window.copyToClipboard = function(text) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast('URL copiada para a área de transferência!');
+    }
+
+    window.applyCategoryFilter = function(cat, btnElem) {
+      activeFilterCategory = cat;
+      document.querySelectorAll('.btn-filter').forEach(b => {
+        b.classList.remove('bg-brand-600', 'text-white', 'border-brand-400');
+        b.classList.add('bg-slate-800', 'text-slate-200', 'border-slate-700');
       });
-      event.target.classList.remove('bg-slate-800', 'text-slate-300');
-      event.target.classList.add('bg-brand-600', 'text-white');
-      updateUI();
+      btnElem.classList.remove('bg-slate-800', 'text-slate-200', 'border-slate-700');
+      btnElem.classList.add('bg-brand-600', 'text-white', 'border-brand-400');
+      refreshDashboardUI();
     }
 
-    function handleGlobalSearch(e) {
-      searchQuery = e.target.value.toLowerCase();
-      updateUI();
+    window.handleSearchInput = function(e) {
+      activeSearchQuery = e.target.value.toLowerCase().trim();
+      refreshDashboardUI();
     }
 
-    // ATUALIZAR INTERFACE
-    function updateUI() {
-      let filtered = linksData;
+    function refreshDashboardUI() {
+      let filtered = [...rawLinksList];
 
-      if (currentFilter !== 'ALL') {
-        filtered = filtered.filter(l => l.category === currentFilter);
+      if (activeFilterCategory !== 'ALL') {
+        filtered = filtered.filter(item => item.category === activeFilterCategory);
       }
 
-      if (searchQuery) {
-        filtered = filtered.filter(l => 
-          l.title.toLowerCase().includes(searchQuery) || 
-          l.url.toLowerCase().includes(searchQuery) ||
-          l.description.toLowerCase().includes(searchQuery)
+      if (activeSearchQuery) {
+        filtered = filtered.filter(item => 
+          (item.title && item.title.toLowerCase().includes(activeSearchQuery)) ||
+          (item.url && item.url.toLowerCase().includes(activeSearchQuery)) ||
+          (item.description && item.description.toLowerCase().includes(activeSearchQuery))
         );
       }
 
-      renderCards(filtered);
+      renderResourceCards(filtered);
       updateKPIs();
-      updateChart();
+      updateCategoryChart();
     }
 
     function updateKPIs() {
-      document.getElementById('kpi-total').innerText = linksData.length;
-      const categories = new Set(linksData.map(l => l.category || 'Geral'));
-      document.getElementById('kpi-categories').innerText = categories.size;
+      document.getElementById('kpi-total-links').innerText = rawLinksList.length;
       
-      const mineCount = linksData.filter(l => l.author === currentUser).length;
-      document.getElementById('kpi-mine').innerText = mineCount;
+      const catsSet = new Set(rawLinksList.map(item => item.category || 'Geral'));
+      document.getElementById('kpi-total-cats').innerText = catsSet.size;
 
-      document.getElementById('kpi-last-check').innerText = new Date().toLocaleTimeString('pt-BR');
+      const activeUser = sessionStorage.getItem('vmax_logged_user') || '29032014';
+      const mineCount = rawLinksList.filter(item => item.author === activeUser).length;
+      document.getElementById('kpi-user-links').innerText = mineCount;
+
+      document.getElementById('kpi-last-sync').innerText = new Date().toLocaleTimeString('pt-BR');
     }
 
-    function renderCards(items) {
-      const container = document.getElementById('links-container');
-      document.getElementById('results-count').innerText = `Exibindo ${items.length} itens`;
-      container.innerHTML = '';
+    function renderResourceCards(items) {
+      const container = document.getElementById('grid-links-container');
+      document.getElementById('label-result-count').innerText = `Exibindo ${items.length} de ${rawLinksList.length} itens`;
 
       if (items.length === 0) {
         container.innerHTML = `
-          <div class="col-span-full text-center py-12 glass-panel rounded-2xl border border-slate-800">
-            <i class="fa-solid fa-folder-open text-3xl text-slate-600 mb-3"></i>
-            <p class="text-sm font-semibold text-slate-400">Nenhum recurso encontrado.</p>
-            <p class="text-xs text-slate-500 mt-1">Tente ajustar seus filtros ou cadastre um novo link acima.</p>
+          <div class="col-span-full text-center py-16 glass-panel rounded-3xl border-4 border-slate-800">
+            <i class="fa-solid fa-folder-open text-6xl text-slate-600 mb-4"></i>
+            <p class="text-3xl font-black text-slate-300">Nenhum recurso encontrado.</p>
+            <p class="text-xl text-slate-400 mt-2">Cadastre um novo link ou altere os filtros de pesquisa.</p>
           </div>
         `;
         return;
       }
 
-      items.forEach(item => {
-        const isOwner = item.author === currentUser || currentUser === '29032014';
+      const activeUser = sessionStorage.getItem('vmax_logged_user') || '29032014';
 
-        container.innerHTML += `
-          <div class="glass-card rounded-2xl p-5 flex flex-col justify-between">
+      container.innerHTML = items.map((item, index) => {
+        const canDelete = item.author === activeUser || activeUser === '29032014';
+
+        return `
+          <div class="glass-card rounded-3xl p-6 sm:p-7 flex flex-col justify-between space-y-6">
             <div>
-              <div class="flex items-center justify-between gap-2 mb-3">
-                <span class="text-[10px] font-extrabold uppercase bg-brand-500/10 text-brand-300 border border-brand-500/20 px-2.5 py-0.5 rounded-full">
+              <div class="flex items-center justify-between gap-3 mb-4">
+                <span class="text-base font-black uppercase bg-brand-500/20 text-brand-300 border-2 border-brand-500/40 px-3.5 py-1 rounded-xl">
                   ${item.category || 'Geral'}
                 </span>
-                <span class="text-[10px] font-mono text-slate-400 flex items-center gap-1">
-                  <i class="fa-solid fa-user-circle"></i> ${item.author}
+                <span class="text-sm font-black text-slate-400 font-mono">
+                  <i class="fa-solid fa-user-circle"></i> ${item.author || 'Anônimo'}
                 </span>
               </div>
 
-              <h4 class="font-bold text-slate-100 text-sm mb-1 line-clamp-1">${item.title}</h4>
-              <p class="text-xs text-slate-400 mb-3 line-clamp-2 leading-relaxed">${item.description}</p>
+              <h4 class="text-2xl sm:text-3xl font-black text-white mb-2 leading-snug line-clamp-2">${item.title}</h4>
+              <p class="text-lg text-slate-300 mb-4 line-clamp-2 font-medium">${item.description}</p>
               
-              <div class="bg-surface-950/60 p-2.5 rounded-xl border border-slate-800/80 mb-4">
-                <a href="${item.url}" target="_blank" class="text-xs text-brand-300 font-mono break-all hover:underline flex items-center gap-1.5">
-                  <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> ${item.url}
+              <div class="bg-surface-950 p-4 rounded-2xl border-2 border-slate-800 mb-2">
+                <a href="${item.url}" target="_blank" class="text-lg text-brand-300 font-mono font-bold break-all hover:underline flex items-center gap-2">
+                  <i class="fa-solid fa-arrow-up-right-from-square text-base"></i> ${item.url}
                 </a>
               </div>
             </div>
 
-            <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-              <span class="text-[10px] text-slate-500 font-mono">${item.date || ''} às ${item.timestamp || ''}</span>
-              <div class="flex items-center gap-1.5">
-                <button onclick="navigator.clipboard.writeText('${item.url}')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded-lg border border-slate-700 transition-all" title="Copiar URL">
-                  <i class="fa-regular fa-copy"></i>
+            <div class="pt-4 border-t-2 border-slate-800 flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-400 font-mono">
+                ${item.dateStr || ''} - ${item.timeStr || ''}
+              </span>
+
+              <div class="flex items-center gap-2">
+                <button onclick="copyToClipboard('${item.url}')" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 font-black text-base rounded-xl border-2 border-slate-700 transition-all flex items-center gap-2">
+                  <i class="fa-regular fa-copy"></i> Copiar
                 </button>
-                ${isOwner ? `
-                  <button onclick="deleteLink(${item.id})" class="px-2.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs rounded-lg border border-red-500/20 transition-all" title="Excluir">
-                    <i class="fa-solid fa-trash-can"></i>
+
+                ${canDelete ? `
+                  <button onclick="deleteLinkRecord('${item.id}')" class="px-4 py-2.5 bg-red-600/20 hover:bg-red-600/40 text-red-300 font-black text-base rounded-xl border-2 border-red-500/40 transition-all flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can"></i> Apagar
                   </button>
                 ` : ''}
               </div>
             </div>
           </div>
         `;
-      });
+      }).join('');
     }
 
-    // GRÁFICO
-    function initChart() {
-      const ctx = document.getElementById('categoryChart').getContext('2d');
-      chartInstance = new Chart(ctx, {
+    window.generateVmaxSampleData = async function() {
+      const activeUser = sessionStorage.getItem('vmax_logged_user') || '29032014';
+      const categories = ['Estudos', 'Trabalho', 'Ferramentas', 'Entretenimento', 'Geral'];
+      
+      const newItems = [];
+      const now = new Date();
+
+      for (let i = 1; i <= 30; i++) {
+        const cat = categories[i % categories.length];
+        const docId = 'sample_' + Date.now() + '_' + i;
+        newItems.push({
+          id: docId,
+          title: `Recurso Corporativo VMAX Nº ${rawLinksList.length + i}`,
+          category: cat,
+          url: `https://vmax-portal.org/resource-${i}`,
+          description: `Item gerado automaticamente para testes de alta capacidade em massa.`,
+          author: activeUser,
+          dateStr: now.toLocaleDateString('pt-BR'),
+          timeStr: now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+          timestampRaw: now.getTime() - (i * 1000)
+        });
+      }
+
+      if (db && currentUser) {
+        try {
+          const batch = writeBatch(db);
+          newItems.forEach(item => {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'vmax_links', item.id);
+            batch.set(ref, item);
+          });
+          await batch.commit();
+        } catch (e) {
+          rawLinksList = [...newItems, ...rawLinksList];
+          saveLocalFallback();
+          refreshDashboardUI();
+        }
+      } else {
+        rawLinksList = [...newItems, ...rawLinksList];
+        saveLocalFallback();
+        refreshDashboardUI();
+      }
+
+      showToast('Amostra de 30 novos links gravados!');
+    }
+
+    function initCategoryChart() {
+      const ctx = document.getElementById('categoryDistributionChart').getContext('2d');
+      categoryChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
           labels: ['Geral', 'Estudos', 'Trabalho', 'Ferramentas', 'Entretenimento'],
           datasets: [{
             data: [0, 0, 0, 0, 0],
             backgroundColor: ['#6366f1', '#818cf8', '#34d399', '#fbbf24', '#f87171'],
-            borderWidth: 0
+            borderWidth: 3,
+            borderColor: '#0f172a'
           }]
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
-            legend: { position: 'right', labels: { color: '#94a3b8', font: { size: 10 } } }
+            legend: {
+              position: 'right',
+              labels: {
+                color: '#cbd5e1',
+                font: { size: 14, weight: 'bold' },
+                padding: 12
+              }
+            }
           }
         }
       });
     }
 
-    function updateChart() {
-      if (!chartInstance) return;
+    function updateCategoryChart() {
+      if (!categoryChartInstance) return;
       const counts = { Geral: 0, Estudos: 0, Trabalho: 0, Ferramentas: 0, Entretenimento: 0 };
-      linksData.forEach(l => {
-        const cat = l.category || 'Geral';
+      
+      rawLinksList.forEach(item => {
+        const cat = item.category || 'Geral';
         if (counts[cat] !== undefined) counts[cat]++;
       });
-      chartInstance.data.datasets[0].data = Object.values(counts);
-      chartInstance.update();
+
+      categoryChartInstance.data.datasets[0].data = Object.values(counts);
+      categoryChartInstance.update();
     }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast-message');
+      document.getElementById('toast-text').innerText = msg;
+      toast.classList.remove('hidden');
+      setTimeout(() => {
+        toast.classList.add('hidden');
+      }, 3500);
+    }
+
+    // Auto load session check on start
+    window.addEventListener('DOMContentLoaded', () => {
+      initFirebaseConnection();
+      
+      const savedUser = sessionStorage.getItem('vmax_logged_user');
+      if (savedUser) {
+        document.getElementById('auth-id').value = savedUser;
+        document.getElementById('auth-pass').value = 'mamamie123';
+      }
+    });
   </script>
 </body>
 </html>
